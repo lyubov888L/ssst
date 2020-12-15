@@ -23,7 +23,7 @@ jobs:
       matrix:
         task:
           - name: Test
-            tox_base:
+            tox_base: test-
           - name: Mypy
             tox_base: mypy-
         os:
