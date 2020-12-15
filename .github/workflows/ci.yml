@@ -48,6 +48,11 @@ jobs:
             runs-on: macos-latest
             python_platform: darwin
             matrix: macos
+        qt_library:
+          - name: PyQt5
+            tox: pyqt5
+          - name: PySide2
+            tox: pyside2
         python:
           - name: CPython 3.6
             tox: py36
@@ -72,11 +77,6 @@ jobs:
           - name: x64
             action: x64
             matrix: x64
-        qt_library:
-          - name: PyQt5
-            tox: pyqt5
-          - name: PySide2
-            tox: pyside2
         exclude:
           - os:
               matrix: linux
