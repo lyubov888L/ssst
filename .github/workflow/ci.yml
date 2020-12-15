@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - "*"
+  schedule:
+    # Daily at 05:14
+    - cron: '14 5 * * *'
+
+jobs:
+  test:
+    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: Test
+            tox_base:
+          - name: Mypy
+            tox_base: mypy-
+        os:
+          - name: Linux
+            runs-on: ubuntu-latest
+            python_platform: linux
+            matrix: linux
+            container:
+              2.7: docker://python:2.7-buster
+              3.5: docker://python:3.5-buster
+              3.6: docker://python:3.6-buster
+              3.7: docker://python:3.7-buster
+              3.8: docker://python:3.8-buster
+              3.9: docker://python:3.9-rc-buster
+              pypy2: docker://pypy:2-jessie
+              pypy3: docker://pypy:3-stretch
+          - name: Windows
+            runs-on: windows-latest
+            python_platform: win32
+            matrix: windows
+          - name: macOS
+            runs-on: macos-latest
+            python_platform: darwin
+            matrix: macos
+        python:
+          - name: CPython 3.6
+            tox: py36
+            action: 3.6
+            docker: 3.6
+          - name: CPython 3.7
+            tox: py37
+            action: 3.7
+            docker: 3.7
+          - name: CPython 3.8
+            tox: py38
+            action: 3.8
+            docker: 3.8
+          - name: CPython 3.9
+            tox: py39
+            action: 3.9
+            docker: 3.9
+        arch:
+          - name: x86
+            action: x86
+            matrix: x86
+          - name: x64
+            action: x64
+            matrix: x64
+        qt_library:
+          - name: PyQt5
+            tox: pyqt5
+          - name: PySide2
+            tox: pyside2
+        exclude:
+          - os:
+              matrix: linux
+            arch:
+              matrix: x32
+          - os:
+              matrix: macos
+            arch:
+              matrix: x32
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up ${{ matrix.python.name }}
+        if: job.container == ''
+        uses: actions/setup-python@v2
+        with:
+          python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
+          architecture: '${{ matrix.arch.action }}'
+      - uses: twisted/python-info-action@v1.0.1
+      - name: Install Linux Qt5 dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes libgl1
+      - name: Install
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install tox
+      - name: Test
+        run: |
+          tox -v -e "${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}"
+
+  check:
+    name: ${{ matrix.task.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: Black
+            tox: black
+        os:
+          - name: Linux
+            runs-on: ubuntu-latest
+            python_platform: linux
+            container:
+              3.8: docker://python:3.8-buster
+        python:
+          - name: CPython 3.8
+            tox: py38
+            action: 3.8
+            docker: 3.8
+    steps:
+      - uses: actions/checkout@v2
+      - uses: twisted/python-info-action@v1.0.1
+      - name: Install
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install tox
+      - name: Test
+        run: |
+          tox -v -e ${{ matrix.task.tox }}
+
+  all:
+    name: All
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - check
+    steps:
+      - name: This
+        shell: python
+        run: |
+          import this
