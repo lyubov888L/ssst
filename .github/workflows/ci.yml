@@ -81,11 +81,11 @@ jobs:
           - os:
               matrix: linux
             arch:
-              matrix: x32
+              matrix: x86
           - os:
               matrix: macos
             arch:
-              matrix: x32
+              matrix: x86
     steps:
       - uses: actions/checkout@v2
       - name: Set up ${{ matrix.python.name }}
