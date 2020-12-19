@@ -36,33 +36,6 @@ def test_configure_and_import_qtpy_raises(pytester: _pytest.pytester.Pytester) -
     run_result.assert_outcomes(passed=1)
 
 
-def test_configure_and_import_qtpy_raises(pytester: _pytest.pytester.Pytester) -> None:
-    content = f"""
-    import os
-    import sys
-
-    import pytest
-
-    import ssst._utilities
-    import ssst.exceptions
-
-
-    os.environ.pop(ssst._utilities.qt_api_variable_name)
-
-
-    def test():
-        import qtpy
-
-        with pytest.raises(ssst.exceptions.QtpyError, match="qtpy imported prior to"):
-            ssst._utilities.configure_and_import_qtpy(
-                api=ssst._utilities.QtApis.PyQt5,
-            )
-    """
-    pytester.makepyfile(content)
-    run_result = pytester.runpytest_subprocess()
-    run_result.assert_outcomes(passed=1)
-
-
 @pytest.mark.parametrize(
     argnames=["api_string", "api"],
     argvalues=[
