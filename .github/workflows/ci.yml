@@ -15,6 +15,7 @@ on:
 
 jobs:
   test:
+    # Should match JOB_NAME below
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ matrix.os.container[matrix.python.docker] }}
@@ -24,8 +25,10 @@ jobs:
         task:
           - name: Test
             tox: test
+            codecov: true
           - name: Mypy
             tox: mypy
+            codecov: false
         os:
           - name: Linux
             runs-on: ubuntu-latest
@@ -107,7 +110,13 @@ jobs:
       - name: Test
         run: |
           tox -v -e "${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}"
-
+      - name: Codecov
+        if: matrix.task.codecov
+        run: |
+          tox -v -e codecov
+        env:
+          # Should match name below
+          JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
   check:
     name: ${{ matrix.task.name }}
     runs-on: ${{ matrix.os.runs-on }}
