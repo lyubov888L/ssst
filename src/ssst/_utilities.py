@@ -1,45 +1,39 @@
 import enum
 import os
 import sys
+import typing
 
 import ssst.exceptions
 
 
 # must match qtpy.QT_API but we can't import it until we've set this
 qt_api_variable_name = "QT_API"
+"""The name of the environment variable QtPy checks for selecting the desired
+Qt wrapper API."""
 
 
 class QtApis(enum.Enum):
-    """Supported Qt APIs.  Values correspond to qtpy names for each."""
+    """Supported Qt APIs.  Values correspond to qtpy names for each.  Generally used
+    as a parameter to :func:`ssst._utilities.configure_qtpy()`.
+    """
 
     PyQt5 = "pyqt5"
+    """PyQt5 by Riverbank Computing"""
+
     PySide2 = "pyside2"
-    default = "default"
+    """PySide2 by Qt"""
 
 
-default = QtApis.PySide2
+def configure_qtpy(api: QtApis) -> None:
+    """
+    Set the configuration such that QtPy will use the specified Qt wrapper API.
 
-
-qt_api_cli_names = {
-    "pyqt5": QtApis.PyQt5,
-    "pyside2": QtApis.PySide2,
-    "default": QtApis.default,
-}
-
-
-def configure_and_import_qtpy(api: QtApis) -> None:
+    Args:
+        api: The Qt wrapper API for QtPy to use.
+    """
     if "qtpy" in sys.modules:
-        raise ssst.exceptions.QtpyError("qtpy imported prior to selecting which API")
+        raise ssst.exceptions.QtpyError("qtpy imported prior to configuring the API")
 
     if qt_api_variable_name not in os.environ:
-        if api == QtApis.default:
-            api = default
-
-        os.environ[qt_api_variable_name] = api.value
-
-    # Force this present configuration to be used for loading qtpy.  Presumably you
-    # will only call this function when you want qtpy loaded so hopefully this doesn't
-    # cause pointless importing.  A present quick test takes roughly 30ms to import so
-    # this shouldn't contribute unduly to startup latency.
-
-    import qtpy
+        if api is not None:
+            os.environ[qt_api_variable_name] = api.value
