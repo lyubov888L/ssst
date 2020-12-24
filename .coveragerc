@@ -1,6 +1,7 @@
-[run]
-branch=True
-source=ssst
+[paths]
+source =
+   src
+   */site-packages
 
 [report]
 precision = 1
@@ -8,3 +9,8 @@ exclude_lines =
   pragma: no cover
   abc\.abstractmethod
   typing\.overload
+
+[run]
+branch = True
+source =
+    ssst
