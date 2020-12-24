@@ -25,10 +25,10 @@ jobs:
         task:
           - name: Test
             tox: test
-            codecov: true
+            coverage: true
           - name: Mypy
             tox: mypy
-            codecov: false
+            coverage: false
         os:
           - name: Linux
             runs-on: ubuntu-latest
@@ -89,6 +89,9 @@ jobs:
               matrix: macos
             arch:
               matrix: x86
+    env:
+      # Should match name above
+      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -111,14 +114,20 @@ jobs:
           pip install tox
       - name: Test
         run: |
-          tox -v -e "${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}"
-      - name: Codecov
-        if: matrix.task.codecov
+          tox -v -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
+      - name: Coverage Processing
+        if: matrix.task.coverage
         run: |
+          mkdir coverage_reports
+          cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
+          cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
           tox -v -e codecov
-        env:
-          # Should match name below
-          JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+      - name: Publish Coverage
+        if: matrix.task.coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage_reports/*
   check:
     name: ${{ matrix.task.name }}
     runs-on: ${{ matrix.os.runs-on }}
