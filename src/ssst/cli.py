@@ -5,7 +5,7 @@ import click
 import ssst._utilities
 
 
-qt_api_cli_names: typing.Dict[str, ssst._utilities.QtApis] = {
+qt_api_cli_names: typing.Dict[str, typing.Optional[ssst._utilities.QtApis]] = {
     "pyqt5": ssst._utilities.QtApis.PyQt5,
     "pyside2": ssst._utilities.QtApis.PySide2,
     "automatic": None,
@@ -23,7 +23,7 @@ def cli() -> None:
     "--qt-api",
     "qt_api_string",
     choices=sorted(qt_api_cli_names.keys()),
-    default=ssst._utilities.QtApis.default.value,
+    default=None,
     help=(
         f"Default uses PySide2 if {ssst._utilities.qt_api_variable_name} is not set."
     ),

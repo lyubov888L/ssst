@@ -24,7 +24,7 @@ class QtApis(enum.Enum):
     """PySide2 by Qt"""
 
 
-def configure_qtpy(api: QtApis) -> None:
+def configure_qtpy(api: typing.Optional[QtApis]) -> None:
     """
     Set the configuration such that QtPy will use the specified Qt wrapper API.
 
