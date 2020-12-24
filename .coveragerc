@@ -12,5 +12,6 @@ exclude_lines =
 
 [run]
 branch = True
+parallel = true
 source =
     ssst
