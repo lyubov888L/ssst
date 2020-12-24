@@ -25,11 +25,9 @@ jobs:
         task:
           - name: Test
             tox: test
-            codecov: true
             coverage: true
           - name: Mypy
             tox: mypy
-            codecov: false
             coverage: false
         os:
           - name: Linux
@@ -118,18 +116,19 @@ jobs:
       - name: Test
         run: |
           tox -v -e ${{ env.TOX_ENV }}
-      - name: Codecov
-        if: matrix.task.codecov
+      - name: Coverage Processing
+        if: matrix.task.coverage
         run: |
+          mkdir coverage_reports
+          cp .coverage coverage_reports/coverage.${{ env.TOX_ENV }}
+          cp coverage.xml coverage_reports/coverage.${{ env.TOX_ENV }}.xml
           tox -v -e codecov
       - name: Publish Coverage
         if: matrix.task.coverage
         uses: actions/upload-artifact@v2
         with:
           name: coverage
-          path: |
-            coverage.${{ env.TOX_ENV }}
-            coverage.{envname}.xml
+          path: coverage_reports/*
   check:
     name: ${{ matrix.task.name }}
     runs-on: ${{ matrix.os.runs-on }}
