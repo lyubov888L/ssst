@@ -26,9 +26,11 @@ jobs:
           - name: Test
             tox: test
             codecov: true
+            coverage: true
           - name: Mypy
             tox: mypy
             codecov: false
+            coverage: false
         os:
           - name: Linux
             runs-on: ubuntu-latest
@@ -92,6 +94,7 @@ jobs:
     env:
       # Should match name above
       JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+      TOX_ENV: ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -114,16 +117,17 @@ jobs:
           pip install tox
       - name: Test
         run: |
-          tox -v -e "${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}"
+          tox -v -e ${{ env.TOX_ENV }}
       - name: Codecov
         if: matrix.task.codecov
         run: |
           tox -v -e codecov
       - name: Publish Coverage
+        if: matrix.task.coverage
         uses: actions/upload-artifact@v2
         with:
           name: coverage - ${{ env.JOB_NAME }}
-          path: .coverage.*
+          path: coverage.${{ env.TOX_ENV }}
   check:
     name: ${{ matrix.task.name }}
     runs-on: ${{ matrix.os.runs-on }}
