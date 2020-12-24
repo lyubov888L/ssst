@@ -92,7 +92,6 @@ jobs:
     env:
       # Should match name above
       JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-      TOX_ENV: ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -115,13 +114,13 @@ jobs:
           pip install tox
       - name: Test
         run: |
-          tox -v -e ${{ env.TOX_ENV }}
+          tox -v -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
       - name: Coverage Processing
         if: matrix.task.coverage
         run: |
           mkdir coverage_reports
-          cp .coverage coverage_reports/coverage.${{ env.TOX_ENV }}
-          cp coverage.xml coverage_reports/coverage.${{ env.TOX_ENV }}.xml
+          cp .coverage coverage_reports/coverage.${{ env.JOB_NAME }}
+          cp coverage.xml coverage_reports/coverage.${{ env.JOB_NAME }}.xml
           tox -v -e codecov
       - name: Publish Coverage
         if: matrix.task.coverage
