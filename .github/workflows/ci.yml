@@ -91,6 +91,8 @@ jobs:
               matrix: x86
     steps:
       - uses: actions/checkout@v2
+        with:
+          - fetch-depth: 0
       - name: Set up ${{ matrix.python.name }}
         if: job.container == ''
         uses: actions/setup-python@v2
@@ -140,6 +142,8 @@ jobs:
             docker: 3.8
     steps:
       - uses: actions/checkout@v2
+        with:
+          - fetch-depth: 0
       - uses: twisted/python-info-action@v1.0.1
       - name: Install
         run: |
