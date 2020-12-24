@@ -89,6 +89,9 @@ jobs:
               matrix: macos
             arch:
               matrix: x86
+    env:
+      # Should match name above
+      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -116,9 +119,11 @@ jobs:
         if: matrix.task.codecov
         run: |
           tox -v -e codecov
-        env:
-          # Should match name below
-          JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+      - name: Publish Coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage - ${{ env.JOB_NAME }}
+          path: .coverage.*
   check:
     name: ${{ matrix.task.name }}
     runs-on: ${{ matrix.os.runs-on }}
