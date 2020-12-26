@@ -26,7 +26,7 @@ def cli() -> None:
     "--qt-api",
     "qt_api_string",
     type=click.Choice(choices=sorted(qt_api_cli_names.keys())),
-    default="automatic",
+    default=automatic_api_cli_name,
     help=(
         f"Default uses PySide2 if {ssst._utilities.qt_api_variable_name} is not set."
     ),
