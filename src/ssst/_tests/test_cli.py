@@ -14,6 +14,6 @@ commands = [ssst.cli.cli, ssst.cli.gui]
 )
 def test_help_does_not_fail(
     command: click.Command, cli_runner: click.testing.CliRunner
-):
+) -> None:
     result = cli_runner.invoke(command, args=["--help"])
     assert result.exit_code == 0
