@@ -6,7 +6,7 @@ import ssst._utilities
 
 
 def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
-    group = parser.getgroup("grid-tied")
+    group = parser.getgroup("SSST")
 
     group.addoption(
         "--qt-api",
