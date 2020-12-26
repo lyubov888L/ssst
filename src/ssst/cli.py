@@ -5,10 +5,13 @@ import click
 import ssst._utilities
 
 
+automatic_api_cli_name = "automatic"
+
+
 qt_api_cli_names: typing.Dict[str, typing.Optional[ssst._utilities.QtApis]] = {
     "pyqt5": ssst._utilities.QtApis.PyQt5,
     "pyside2": ssst._utilities.QtApis.PySide2,
-    "automatic": None,
+    automatic_api_cli_name: None,
 }
 """A mapping from the strings used on the CLI to the wrapper API enumerators."""
 
