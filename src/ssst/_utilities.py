@@ -41,13 +41,20 @@ def configure_qtpy(api: typing.Optional[QtApis]) -> None:
             os.environ[qt_api_variable_name] = api.value
 
 
+def _no_output(*args: object, **kwargs: object) -> None:
+    pass
+
+
 def compile_ui(
-    output: typing.Callable[..., object] = lambda *args, **kwargs: None
+    directory_path: typing.Sequence[pathlib.Path] = (
+        pathlib.Path(ssst.__file__).parent,
+    ),
+    output: typing.Callable[..., object] = _no_output,
 ) -> None:
     import alqtendpy.compileui
 
     alqtendpy.compileui.compile_ui(
-        directory_paths=[pathlib.Path(ssst.__file__).parent],
+        directory_paths=directory_path,
         output=output,
         qtpy=True,
     )
