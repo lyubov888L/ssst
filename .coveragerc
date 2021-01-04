@@ -9,6 +9,7 @@ exclude_lines =
   pragma: no cover
   abc\.abstractmethod
   typing\.overload
+  if typing.TYPE_CHECKING:
 
 [run]
 branch = True
