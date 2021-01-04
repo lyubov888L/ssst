@@ -3,6 +3,7 @@ import sys
 import traceback
 import typing
 
+import async_generator
 import attr
 from qtpy import QtCore
 from qtpy import QtGui
@@ -12,6 +13,11 @@ import qtrio.dialogs
 import trio
 
 import ssst.gui.main_ui
+
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
 
 
 @attr.s(auto_attribs=True)
@@ -25,7 +31,7 @@ class ExceptionPresenter:
 
     message_box_created = qtrio.Signal()
 
-    @contextlib.asynccontextmanager
+    @async_generator.asynccontextmanager
     async def manage(self) -> typing.AsyncIterator[None]:
         try:
             yield
@@ -68,7 +74,7 @@ class SignaledMainWindow(QtWidgets.QMainWindow):
             pass
 
 
-class TaskStatusProtocol(typing.Protocol):
+class TaskStatusProtocol(Protocol):
     def started(self, item: object) -> None:
         ...
 
