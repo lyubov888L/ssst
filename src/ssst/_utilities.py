@@ -1,8 +1,10 @@
 import enum
 import os
+import pathlib
 import sys
 import typing
 
+import ssst
 import ssst.exceptions
 
 
@@ -37,3 +39,13 @@ def configure_qtpy(api: typing.Optional[QtApis]) -> None:
     if qt_api_variable_name not in os.environ:
         if api is not None:
             os.environ[qt_api_variable_name] = api.value
+
+
+def compile_ui(output: typing.Callable[..., None] = lambda *args, **kwargs: None):
+    import alqtendpy.compileui
+
+    alqtendpy.compileui.compile_ui(
+        directory_paths=[pathlib.Path(ssst.__file__).parent],
+        output=output,
+        qtpy=True,
+    )

@@ -23,3 +23,5 @@ def pytest_configure(config: _pytest.config.Config) -> None:
     qt_api_string = config.getoption("--qt-api")
     qt_api = ssst.cli.qt_api_cli_names[qt_api_string]
     ssst._utilities.configure_qtpy(api=qt_api)
+
+    ssst._utilities.compile_ui(output=print)

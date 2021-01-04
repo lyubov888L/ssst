@@ -1,3 +1,4 @@
+import functools
 import typing
 
 import click
@@ -28,9 +29,24 @@ def cli() -> None:
     type=click.Choice(choices=sorted(qt_api_cli_names.keys())),
     default=automatic_api_cli_name,
     help=(
-        f"Default uses PySide2 if {ssst._utilities.qt_api_variable_name} is not set."
+        f"Default lets QtPy choose.  {ssst._utilities.qt_api_variable_name} will be"
+        f" used if set."
     ),
 )
 def gui(qt_api_string: str) -> None:
+    import ssst._utilities
+
     qt_api = qt_api_cli_names[qt_api_string]
     ssst._utilities.configure_qtpy(api=qt_api)
+
+    import ssst.gui.main
+    import qtrio
+
+    qtrio.run(functools.partial(ssst.gui.main.Window.start, title="SSST"))
+
+
+@cli.command()
+def uic():
+    import ssst.gui.utilities
+
+    ssst.gui.utilities.compile_ui(output=click.echo)
