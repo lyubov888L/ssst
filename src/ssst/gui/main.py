@@ -18,13 +18,15 @@ import ssst.gui.main_ui
 class ExceptionPresenter:
     title: str = "Unhandled Exception"
     parent: typing.Optional[QtWidgets.QWidget] = None
-    exceptions: typing.Union[Exception, typing.Tuple[Exception, ...]] = Exception
+    exceptions: typing.Union[
+        typing.Type[Exception], typing.Tuple[typing.Type[Exception], ...]
+    ] = Exception
     message_box: typing.Optional[qtrio.dialogs.MessageBox] = None
 
     message_box_created = qtrio.Signal()
 
     @contextlib.asynccontextmanager
-    async def manage(self):
+    async def manage(self) -> typing.AsyncIterator[None]:
         try:
             yield
         except self.exceptions:
@@ -66,6 +68,11 @@ class SignaledMainWindow(QtWidgets.QMainWindow):
             pass
 
 
+class TaskStatusProtocol(typing.Protocol):
+    def started(self, item: object) -> None:
+        ...
+
+
 @attr.s(auto_attribs=True)
 class Window:
     _title: str
@@ -73,10 +80,12 @@ class Window:
     ui: ssst.gui.main_ui.Ui_MainWindow = attr.ib(factory=ssst.gui.main_ui.Ui_MainWindow)
     emissions_exception_presenter: ExceptionPresenter = ExceptionPresenter()
 
-    async def raise_clicked(self):
+    async def raise_clicked(self) -> None:
         raise Exception("This is a demonstration exception to show off its handling.")
 
-    async def run(self, *, task_status=trio.TASK_STATUS_IGNORED):
+    async def run(
+        self, *, task_status: TaskStatusProtocol = trio.TASK_STATUS_IGNORED
+    ) -> None:
         self.ui.setupUi(MainWindow=self.widget)
         self.widget.setWindowTitle(self._title)
 
@@ -102,7 +111,9 @@ class Window:
                             raise ssst.UnexpectedEmissionError(emission)
 
     @classmethod
-    async def start(cls, title: str, *, task_status=trio.TASK_STATUS_IGNORED):
+    async def start(
+        cls, title: str, *, task_status: TaskStatusProtocol = trio.TASK_STATUS_IGNORED
+    ) -> None:
         exception_presenter = ExceptionPresenter()
 
         async with exception_presenter.manage():

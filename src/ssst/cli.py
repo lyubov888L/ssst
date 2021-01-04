@@ -46,7 +46,7 @@ def gui(qt_api_string: str) -> None:
 
 
 @cli.command()
-def uic():
-    import ssst.gui.utilities
+def uic() -> None:
+    import ssst._utilities
 
-    ssst.gui.utilities.compile_ui(output=click.echo)
+    ssst._utilities.compile_ui(output=click.echo)

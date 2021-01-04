@@ -41,7 +41,9 @@ def configure_qtpy(api: typing.Optional[QtApis]) -> None:
             os.environ[qt_api_variable_name] = api.value
 
 
-def compile_ui(output: typing.Callable[..., None] = lambda *args, **kwargs: None):
+def compile_ui(
+    output: typing.Callable[..., object] = lambda *args, **kwargs: None
+) -> None:
     import alqtendpy.compileui
 
     alqtendpy.compileui.compile_ui(
