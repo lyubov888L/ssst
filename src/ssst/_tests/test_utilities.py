@@ -1,8 +1,8 @@
-import importlib.resources
 import pathlib
 import shutil
 import tempfile
 
+import importlib_resources
 import pytest
 import _pytest.pytester
 import qtpy
@@ -142,7 +142,7 @@ def tmp_path_with_ui_fixture(tmp_path):
 
         name = "example.ui"
 
-        ui_source_file = importlib.resources.open_binary(
+        ui_source_file = importlib_resources.open_binary(
             package=ssst._tests, resource=name
         )
         ui_target_path = sub_tmp_path.joinpath(name)
