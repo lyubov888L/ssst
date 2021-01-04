@@ -7,8 +7,7 @@ import attr
 from qtpy import QtCore
 from qtpy import QtGui
 from qtpy import QtWidgets
-# TODO: uh...  private?
-import qtrio._core
+import qtrio._core  # TODO: uh...  private?
 import qtrio.dialogs
 import trio
 
