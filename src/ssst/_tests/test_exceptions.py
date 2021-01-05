@@ -5,7 +5,7 @@ import qtrio
 import ssst
 
 
-def test_unexpected_emission_error_text():
+def test_unexpected_emission_error_text() -> None:
     # close enough to an emission for now
     item = typing.cast(qtrio.Emission, object())
 

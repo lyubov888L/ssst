@@ -88,7 +88,7 @@ class Window:
     async def run(
         self, *, task_status: TaskStatusProtocol = trio.TASK_STATUS_IGNORED
     ) -> None:
-        self.ui.setupUi(MainWindow=self.widget)
+        self.ui.setupUi(MainWindow=self.widget)  # type: ignore[no-untyped-call]
         self.widget.setWindowTitle(self._title)
 
         with contextlib.closing(self.widget):

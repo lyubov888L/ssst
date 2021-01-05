@@ -1,6 +1,7 @@
 import pathlib
 import shutil
 import tempfile
+import typing
 
 import importlib_resources
 import pytest
@@ -135,7 +136,7 @@ def test_configure_qtpy_handles_env_var(
 
 
 @pytest.fixture(name="tmp_path_with_ui")
-def tmp_path_with_ui_fixture(tmp_path):
+def tmp_path_with_ui_fixture(tmp_path: pathlib.Path) -> typing.Iterator[pathlib.Path]:
     # TODO: maybe work in a separate directory?
     with tempfile.TemporaryDirectory(dir=tmp_path) as path_string:
         sub_tmp_path = pathlib.Path(path_string)
@@ -153,14 +154,16 @@ def tmp_path_with_ui_fixture(tmp_path):
         yield sub_tmp_path
 
 
-def test_compile_ui_defaults_to_no_output(capsys, tmp_path_with_ui):
+def test_compile_ui_defaults_to_no_output(
+    capsys: pytest.CaptureFixture, tmp_path_with_ui: pathlib.Path
+) -> None:
     ssst._utilities.compile_ui(directory_path=[tmp_path_with_ui])
 
     captured = capsys.readouterr()
     assert captured.out == ""
 
 
-def test_compile_ui_creates_expected_path(tmp_path_with_ui):
+def test_compile_ui_creates_expected_path(tmp_path_with_ui: pathlib.Path) -> None:
     [source_ui] = tmp_path_with_ui.iterdir()
     expected_ui_py = tmp_path_with_ui.joinpath(f"{source_ui.stem}_ui.py")
 
