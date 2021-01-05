@@ -136,26 +136,25 @@ def test_configure_qtpy_handles_env_var(
 
 
 @pytest.fixture(name="tmp_path_with_ui")
-def tmp_path_with_ui_fixture(tmp_path: pathlib.Path) -> typing.Iterator[pathlib.Path]:
-    # TODO: maybe work in a separate directory?
-    with tempfile.TemporaryDirectory(dir=tmp_path) as path_string:
-        sub_tmp_path = pathlib.Path(path_string)
+def tmp_path_with_ui_fixture(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    directory_path = tmp_path_factory.mktemp(
+        basename="tmp_path_with_ui_fixture", numbered=True
+    )
 
-        name = "example.ui"
+    name = "example.ui"
 
-        ui_source_file = importlib_resources.open_binary(
-            package=ssst._tests, resource=name
-        )
-        ui_target_path = sub_tmp_path.joinpath(name)
+    ui_source_file = importlib_resources.open_binary(package=ssst._tests, resource=name)
+    ui_target_path = directory_path.joinpath(name)
 
-        with ui_target_path.open("wb") as ui_target_file:
-            shutil.copyfileobj(ui_source_file, ui_target_file)
+    with ui_target_path.open("wb") as ui_target_file:
+        shutil.copyfileobj(ui_source_file, ui_target_file)
 
-        yield sub_tmp_path
+    return directory_path
 
 
 def test_compile_ui_defaults_to_no_output(
-    capsys: pytest.CaptureFixture, tmp_path_with_ui: pathlib.Path
+    capsys: pytest.CaptureFixture,
+    tmp_path_with_ui: pathlib.Path,
 ) -> None:
     ssst._utilities.compile_ui(directory_path=[tmp_path_with_ui])
 
