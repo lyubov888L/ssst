@@ -11,13 +11,9 @@ from qtpy import QtWidgets
 import qtrio._core  # TODO: uh...  private?
 import qtrio.dialogs
 import trio
+import typing_extensions
 
 import ssst.gui.main_ui
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
 
 
 @attr.s(auto_attribs=True)
@@ -74,7 +70,7 @@ class SignaledMainWindow(QtWidgets.QMainWindow):
             pass
 
 
-class TaskStatusProtocol(Protocol):
+class TaskStatusProtocol(typing_extensions.Protocol):
     def started(self, item: object) -> None:
         ...
 
