@@ -10,6 +10,8 @@ exclude_lines =
   abc\.abstractmethod
   typing\.overload
   if typing.TYPE_CHECKING:
+omit =
+  *_ui.py
 
 [run]
 branch = True
