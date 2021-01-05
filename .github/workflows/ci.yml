@@ -114,6 +114,10 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel
           pip install tox
+          pip install -e .
+      - name: Build .ui files
+        run: |
+          ssst uic
       - name: Test
         run: |
           tox -v -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
