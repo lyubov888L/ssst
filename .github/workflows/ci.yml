@@ -112,8 +112,9 @@ jobs:
         if: matrix.os.matrix == 'linux'
       - name: Install
         run: |
-          pip install --upgrade pip setuptools virtualenv wheel
-          pip install tox
+          pip install --upgrade pip
+          pip install --upgrade setuptools tox virtualenv wheel
+          pip freeze --all
       - name: Test
         run: |
           tox -v -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
@@ -158,8 +159,9 @@ jobs:
       - uses: twisted/python-info-action@v1.0.1
       - name: Install
         run: |
-          pip install --upgrade pip setuptools virtualenv wheel
-          pip install tox
+          pip install --upgrade pip
+          pip install --upgrade setuptools tox virtualenv wheel
+          pip freeze --all
       - name: Test
         run: |
           tox -v -e ${{ matrix.task.tox }}
