@@ -117,7 +117,7 @@ jobs:
           pip freeze --all
       - name: Test
         run: |
-          tox -v -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
+          tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
       - name: Coverage Processing
         if: matrix.task.coverage
         run: |
