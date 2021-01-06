@@ -112,7 +112,7 @@ jobs:
         if: matrix.os.matrix == 'linux'
       - name: Install
         run: |
-          pip install --upgrade pip setuptools wheel
+          pip install --upgrade pip setuptools virtualenv wheel
           pip install tox
       - name: Test
         run: |
@@ -158,7 +158,7 @@ jobs:
       - uses: twisted/python-info-action@v1.0.1
       - name: Install
         run: |
-          pip install --upgrade pip setuptools wheel
+          pip install --upgrade pip setuptools virtualenv wheel
           pip install tox
       - name: Test
         run: |
