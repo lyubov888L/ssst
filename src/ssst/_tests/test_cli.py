@@ -7,6 +7,7 @@ import typing
 import click.testing
 import importlib_metadata
 import pytest
+
 # TODO: Shouldn't be importing private stuff.
 #       https://github.com/pytest-dev/pytest/issues/8073
 import _pytest.fixtures
