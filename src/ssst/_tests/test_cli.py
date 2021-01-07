@@ -76,7 +76,7 @@ async def test_gui_persists(nursery: trio.Nursery, tmp_path: pathlib.Path) -> No
     ssst_path = scripts_path.joinpath("ssst")
 
     debug_path = tmp_path.joinpath("debug_file")
-    debug_text = "lkjflkjnlknrlfaljfdsaoivjxcewa\n981439874298785379876298349887\n"
+    debug_bytes = b"lkjflkjnlknrlfaljfdsaoivjxcewa\n981439874298785379876298349887\n"
 
     async def run() -> None:
         # Remember that many exceptions will be caught sufficiently to present in
@@ -86,7 +86,7 @@ async def test_gui_persists(nursery: trio.Nursery, tmp_path: pathlib.Path) -> No
             env={
                 **os.environ,
                 "SSST_DEBUG_FILE": os.fspath(debug_path),
-                "SSST_DEBUG_BYTES": debug_text,
+                "SSST_DEBUG_BYTES": debug_bytes.decode("ASCII"),
             },
         )
 
@@ -99,4 +99,4 @@ async def test_gui_persists(nursery: trio.Nursery, tmp_path: pathlib.Path) -> No
             if debug_path.exists():
                 break
 
-    assert debug_path.read_bytes() == debug_text
+    assert debug_path.read_bytes() == debug_bytes
