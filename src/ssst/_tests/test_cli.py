@@ -79,7 +79,7 @@ async def test_gui_persists(nursery, tmp_path):
         # Remember that many exceptions will be caught sufficiently to present in
         # a dialog which will keep the process running indefinitely.
         await trio.run_process(
-            [ssst_path, "gui"],
+            [os.fspath(ssst_path), "gui"],
             env={
                 **os.environ,
                 "SSST_DEBUG_FILE": os.fspath(debug_path),
