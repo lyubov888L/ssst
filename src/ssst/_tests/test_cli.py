@@ -21,7 +21,8 @@ def all_flat(items: typing.Sequence[ClickItem]) -> typing.List[ClickItem]:
 
     while len(to_visit) > 0:
         item = to_visit.pop(0)
-        if item not in all_items_set:
+        # No branch coverage required for this test helper presently
+        if item not in all_items_set:  # pragma: no branch
             all_items_set.add(item)
             all_items.append(item)
         subitems = getattr(item, "commands", None)
@@ -81,6 +82,7 @@ async def test_gui_persists(nursery: trio.Nursery, tmp_path: pathlib.Path) -> No
     async def run() -> None:
         # Remember that many exceptions will be caught sufficiently to present in
         # a dialog which will keep the process running indefinitely.
+
         await trio.run_process(
             [os.fspath(ssst_path), "gui"],
             env={

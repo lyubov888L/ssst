@@ -10,6 +10,7 @@ exclude_lines =
   abc\.abstractmethod
   typing\.overload
   if typing.TYPE_CHECKING:
+  ^\s*pass\s*$
 omit =
   *_ui.py
 

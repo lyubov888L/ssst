@@ -33,7 +33,11 @@ def cli() -> None:
         f" used if set."
     ),
 )
-def gui(qt_api_string: str) -> None:
+def gui(qt_api_string: str) -> None:  # pragma: no cover
+    # TODO: This is generally actually covered by
+    #  ssst._tests.test_cli.test_gui_persists but the coverage recording or reporting
+    #  isn't working out.
+
     import ssst._utilities
 
     qt_api = qt_api_cli_names[qt_api_string]
