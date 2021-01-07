@@ -1,10 +1,10 @@
-import importlib.metadata
 import os
 import pathlib
 import sysconfig
 import typing
 
 import click.testing
+import importlib_metadata
 import pytest
 import trio
 
@@ -49,7 +49,7 @@ def test_help_does_not_fail(
 
 def test_one_matching_entry_point_provided():
     # TODO: This really belongs elsewhere as it is testing setup.cfg.
-    all_entry_points = importlib.metadata.entry_points()
+    all_entry_points = importlib_metadata.entry_points()
     all_console_scripts = all_entry_points["console_scripts"]
     our_console_scripts = [
         script for script in all_console_scripts if script.value.startswith("ssst.")
