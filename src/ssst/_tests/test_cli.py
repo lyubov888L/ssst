@@ -7,6 +7,9 @@ import typing
 import click.testing
 import importlib_metadata
 import pytest
+# TODO: Shouldn't be importing private stuff.
+#       https://github.com/pytest-dev/pytest/issues/8073
+import _pytest.fixtures
 import trio
 
 import ssst.cli
@@ -68,7 +71,7 @@ def test_one_matching_entry_point_provided() -> None:
 
 
 @pytest.fixture(name="launch_command", params=[False, True], ids=["script", "-m"])
-def launch_command_fixture(request):
+def launch_command_fixture(request: _pytest.fixtures.SubRequest) -> typing.List[str]:
     if request.param:
         return [sys.executable, "-m", "ssst"]
 

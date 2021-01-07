@@ -37,7 +37,7 @@ def gui(qt_api_string: str) -> None:  # pragma: no cover
     # TODO: This is generally actually covered by
     #       ssst._tests.test_cli.test_gui_persists but the coverage recording or
     #       reporting isn't working out.
-    #       See https://github.com/altendky/ssst/issues/13
+    #       https://github.com/altendky/ssst/issues/13
 
     import ssst._utilities
 
