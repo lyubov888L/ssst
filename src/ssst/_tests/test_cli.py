@@ -47,7 +47,7 @@ def test_help_does_not_fail(
     assert result.exit_code == 0
 
 
-def test_one_matching_entry_point_provided():
+def test_one_matching_entry_point_provided() -> None:
     # TODO: This really belongs elsewhere as it is testing setup.cfg.
     all_entry_points = importlib_metadata.entry_points()
     all_console_scripts = all_entry_points["console_scripts"]
@@ -65,17 +65,20 @@ def test_one_matching_entry_point_provided():
     assert len(our_consolidated_console_scripts) == 1, our_consolidated_console_scripts
 
 
-async def test_gui_persists(nursery, tmp_path):
+async def test_gui_persists(nursery: trio.Nursery, tmp_path: pathlib.Path) -> None:
     # TODO: this should be written to use logging features to see where the GUI has
     # traversed to.
 
-    scripts_path = pathlib.Path(sysconfig.get_path("scripts"))
+    maybe_scripts_path_string = sysconfig.get_path("scripts")
+    assert maybe_scripts_path_string is not None
+
+    scripts_path = pathlib.Path(maybe_scripts_path_string)
     ssst_path = scripts_path.joinpath("ssst")
 
     debug_path = tmp_path.joinpath("debug_file")
     debug_bytes = b"lkjflkjnlknrlfaljfdsaoivjxcewa\n981439874298785379876298349887\n"
 
-    async def run():
+    async def run() -> None:
         # Remember that many exceptions will be caught sufficiently to present in
         # a dialog which will keep the process running indefinitely.
         await trio.run_process(
