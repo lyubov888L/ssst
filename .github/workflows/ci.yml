@@ -102,7 +102,6 @@ jobs:
         with:
           python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
           architecture: '${{ matrix.arch.action }}'
-      - uses: twisted/python-info-action@v1.0.1
       - name: Install Linux Qt5 dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
@@ -113,10 +112,11 @@ jobs:
       - name: Install
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install tox
+          pip install --upgrade tox
+      - uses: twisted/python-info-action@v1.0.1
       - name: Test
         run: |
-          tox -v -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
+          tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
       - name: Coverage Processing
         if: matrix.task.coverage
         run: |
@@ -155,11 +155,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: twisted/python-info-action@v1.0.1
       - name: Install
         run: |
           pip install --upgrade pip setuptools wheel
           pip install tox
+          pip install --upgrade pip setuptools wheel
+          pip install --upgrade tox
+      - uses: twisted/python-info-action@v1.0.1
       - name: Test
         run: |
           tox -v -e ${{ matrix.task.tox }}
