@@ -109,7 +109,8 @@ class Window:
                 debug_file_variable = os.environ.get("SSST_DEBUG_FILE", None)
                 if debug_file_variable is not None:
                     debug_path = pathlib.Path(debug_file_variable)
-                    debug_path.write_bytes(os.environb[b"SSST_DEBUG_BYTES"])
+                    debug_text = os.environ["SSST_DEBUG_BYTES"]
+                    debug_path.write_bytes(os.fsencode(debug_text))
 
                 async for emission in emissions.channel:
                     async with self.emissions_exception_presenter.manage():
