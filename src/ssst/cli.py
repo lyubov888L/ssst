@@ -46,7 +46,9 @@ def gui(qt_api_string: str) -> None:
 
 
 @cli.command()
-def uic() -> None:
+def uic() -> None:  # pragma: no cover
+    # Coverage not required during testing since this has to work to create all the
+    # UI modules that the tests exercise anyways.  Sort of...
     import ssst._utilities
 
     ssst._utilities.compile_ui(output=click.echo)

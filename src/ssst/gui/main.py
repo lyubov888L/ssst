@@ -1,4 +1,6 @@
 import contextlib
+import os
+import pathlib
 import sys
 import traceback
 import typing
@@ -102,6 +104,12 @@ class Window:
                     self.widget.show()
 
                 task_status.started(self)
+
+                # TODO: this should be replaced with logging which the test checks
+                debug_file_variable = os.environ.get("SSST_DEBUG_FILE", None)
+                if debug_file_variable is not None:
+                    debug_path = pathlib.Path(debug_file_variable)
+                    debug_path.write_bytes(os.environb[b"SSST_DEBUG_BYTES"])
 
                 async for emission in emissions.channel:
                     async with self.emissions_exception_presenter.manage():
