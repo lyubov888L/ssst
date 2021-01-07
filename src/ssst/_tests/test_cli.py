@@ -1,5 +1,6 @@
 import os
 import pathlib
+import sys
 import sysconfig
 import typing
 
@@ -66,15 +67,25 @@ def test_one_matching_entry_point_provided() -> None:
     assert len(our_consolidated_console_scripts) == 1, our_consolidated_console_scripts
 
 
-async def test_gui_persists(nursery: trio.Nursery, tmp_path: pathlib.Path) -> None:
-    # TODO: this should be written to use logging features to see where the GUI has
-    # traversed to.
+@pytest.fixture(name="launch_command", params=[False, True], ids=["script", "-m"])
+def launch_command_fixture(request):
+    if request.param:
+        return [sys.executable, "-m", "ssst"]
 
     maybe_scripts_path_string = sysconfig.get_path("scripts")
     assert maybe_scripts_path_string is not None
 
     scripts_path = pathlib.Path(maybe_scripts_path_string)
     ssst_path = scripts_path.joinpath("ssst")
+
+    return [os.fspath(ssst_path)]
+
+
+async def test_gui_launches(
+    nursery: trio.Nursery, tmp_path: pathlib.Path, launch_command: typing.List[str]
+) -> None:
+    # TODO: this should be written to use logging features to see where the GUI has
+    # traversed to.
 
     debug_path = tmp_path.joinpath("debug_file")
     debug_bytes = b"lkjflkjnlknrlfaljfdsaoivjxcewa\n981439874298785379876298349887\n"
@@ -84,7 +95,7 @@ async def test_gui_persists(nursery: trio.Nursery, tmp_path: pathlib.Path) -> No
         # a dialog which will keep the process running indefinitely.
 
         await trio.run_process(
-            [os.fspath(ssst_path), "gui"],
+            [*launch_command, "gui"],
             env={
                 **os.environ,
                 "SSST_DEBUG_FILE": os.fspath(debug_path),
