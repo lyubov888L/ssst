@@ -28,4 +28,4 @@ def pytest_configure(config: _pytest.config.Config) -> None:
 
     # subprocessing to avoid import of qtpy, even in subprocessed tests
     script_path = ssst._utilities.script_path(name="ssst")
-    subprocess.run([script_path, "uic"], check=True)
+    subprocess.run([os.fspath(script_path), "uic"], check=True)
