@@ -1,7 +1,9 @@
 import enum
 import os
 import pathlib
+import subprocess
 import sys
+import sysconfig
 import typing
 
 import ssst
@@ -51,10 +53,106 @@ def compile_ui(
     ),
     output: typing.Callable[..., object] = _no_output,
 ) -> None:
-    import alqtendpy.compileui
-
-    alqtendpy.compileui.compile_ui(
+    generic_compile_ui(
         directory_paths=directory_path,
         output=output,
-        qtpy=True,
+        rewrite_for_qtpy=True,
     )
+
+
+# TODO: This .ui building bit was 'extracted' from alqtendpy and likely belongs not
+#       here.
+#       https://github.com/altendky/ssst/issues/15
+
+
+def _do_nothing(*args: object, **kwargs: object) -> None:
+    pass
+
+
+def generic_compile_ui(
+    file_paths: typing.Sequence[pathlib.Path] = (),
+    directory_paths: typing.Sequence[pathlib.Path] = (),
+    extension: str = ".ui",
+    suffix: str = "_ui",
+    encoding: str = "utf-8",
+    output: typing.Callable[..., object] = _do_nothing,
+    rewrite_for_qtpy: bool = False,
+) -> None:
+    paths = collect_paths(
+        file_paths=file_paths,
+        directory_paths=directory_paths,
+        extension=extension,
+    )
+
+    compile_paths(
+        ui_paths=paths,
+        suffix=suffix,
+        encoding=encoding,
+        output=output,
+        rewrite_for_qtpy=rewrite_for_qtpy,
+    )
+
+
+def collect_paths(
+    file_paths: typing.Sequence[pathlib.Path] = (),
+    directory_paths: typing.Sequence[pathlib.Path] = (),
+    extension: str = ".ui",
+) -> typing.List[pathlib.Path]:
+    file_paths = [pathlib.Path(path) for path in file_paths]
+
+    for directory in directory_paths:
+        path = pathlib.Path(directory)
+        found_paths = path.rglob("*" + extension)
+        file_paths.extend(found_paths)
+
+    return file_paths
+
+
+def scripts_path() -> pathlib.Path:
+    maybe_scripts_path_string = sysconfig.get_path("scripts")
+    if maybe_scripts_path_string is None:
+        raise ssst.SsstError()
+
+    return pathlib.Path(maybe_scripts_path_string)
+
+
+def script_path(name: str) -> pathlib.Path:
+    return scripts_path().joinpath(name)
+
+
+def compile_paths(
+    ui_paths: typing.Sequence[pathlib.Path],
+    suffix: str = "_ui",
+    encoding: str = "utf-8",
+    output: typing.Callable[..., object] = _do_nothing,
+    rewrite_for_qtpy: bool = False,
+) -> None:
+    # If you import at the top you hazard beating the configuration of QtPy.  Not
+    # a preferred design but it is reality.
+
+    import qtpy
+
+    for path in ui_paths:
+        in_path = path
+        out_path = path.with_name(f"{path.stem}{suffix}.py")
+
+        output(f"Converting: {in_path} -> {out_path}")
+
+        script_name = {
+            "PyQt5": "pyuic5",
+            "PySide2": "pyside2-uic",
+        }[qtpy.API_NAME]
+
+        completed_process = subprocess.run(
+            [os.fspath(script_path(name=script_name)), os.fspath(in_path)],
+            check=True,
+            stdout=subprocess.PIPE,
+        )
+
+        intermediate = completed_process.stdout.decode("utf-8")
+
+        if rewrite_for_qtpy:
+            intermediate = intermediate.replace(f"from {qtpy.API_NAME}", "from qtpy")
+
+        with open(out_path, "w", encoding=encoding) as out_file:
+            out_file.write(intermediate)

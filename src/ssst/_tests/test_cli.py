@@ -1,7 +1,6 @@
 import os
 import pathlib
 import sys
-import sysconfig
 import typing
 
 import click.testing
@@ -14,7 +13,7 @@ import _pytest.fixtures
 import trio
 
 import ssst.cli
-
+import ssst._utilities
 
 ClickItem = typing.Union[click.Group, click.Command]
 
@@ -76,11 +75,7 @@ def launch_command_fixture(request: _pytest.fixtures.SubRequest) -> typing.List[
     if request.param:
         return [sys.executable, "-m", "ssst"]
 
-    maybe_scripts_path_string = sysconfig.get_path("scripts")
-    assert maybe_scripts_path_string is not None
-
-    scripts_path = pathlib.Path(maybe_scripts_path_string)
-    ssst_path = scripts_path.joinpath("ssst")
+    ssst_path = ssst._utilities.script_path(name="ssst")
 
     return [os.fspath(ssst_path)]
 
