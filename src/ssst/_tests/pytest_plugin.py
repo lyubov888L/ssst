@@ -26,7 +26,7 @@ def pytest_configure(config: _pytest.config.Config) -> None:
     qt_api_string = config.getoption("--qt-api")
     qt_api = ssst.cli.qt_api_cli_names[qt_api_string]
 
-    if qt_api is not None:
+    if qt_api is not None:  # pragma: no branch
         ssst._utilities.configure_qtpy(api=qt_api)
 
     # subprocessing to avoid import of qtpy, even in subprocessed tests
