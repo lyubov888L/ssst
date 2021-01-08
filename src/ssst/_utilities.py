@@ -144,7 +144,7 @@ def compile_paths(
         }[qtpy.API_NAME]
 
         completed_process = subprocess.run(
-            [os.fspath(script_path(name=script_name)), in_path],
+            [os.fspath(script_path(name=script_name)), os.fspath(in_path)],
             check=True,
             stdout=subprocess.PIPE,
         )
