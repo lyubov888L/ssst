@@ -8,6 +8,10 @@ class SsstError(Exception):
     pass
 
 
+class InternalError(Exception):
+    pass
+
+
 class QtpyError(SsstError):
     pass
 

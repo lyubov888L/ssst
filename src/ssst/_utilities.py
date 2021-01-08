@@ -28,7 +28,7 @@ class QtApis(enum.Enum):
     """PySide2 by Qt"""
 
 
-def configure_qtpy(api: typing.Optional[QtApis]) -> None:
+def configure_qtpy(api: QtApis) -> None:
     """
     Set the configuration such that QtPy will use the specified Qt wrapper API.
 
@@ -39,8 +39,7 @@ def configure_qtpy(api: typing.Optional[QtApis]) -> None:
         raise ssst.exceptions.QtpyError("qtpy imported prior to configuring the API")
 
     if qt_api_variable_name not in os.environ:
-        if api is not None:
-            os.environ[qt_api_variable_name] = api.value
+        os.environ[qt_api_variable_name] = api.value
 
 
 def _no_output(*args: object, **kwargs: object) -> None:
@@ -56,7 +55,6 @@ def compile_ui(
     generic_compile_ui(
         directory_paths=directory_path,
         output=output,
-        rewrite_for_qtpy=True,
     )
 
 
@@ -76,7 +74,6 @@ def generic_compile_ui(
     suffix: str = "_ui",
     encoding: str = "utf-8",
     output: typing.Callable[..., object] = _do_nothing,
-    rewrite_for_qtpy: bool = False,
 ) -> None:
     paths = collect_paths(
         file_paths=file_paths,
@@ -89,7 +86,6 @@ def generic_compile_ui(
         suffix=suffix,
         encoding=encoding,
         output=output,
-        rewrite_for_qtpy=rewrite_for_qtpy,
     )
 
 
@@ -110,8 +106,8 @@ def collect_paths(
 
 def scripts_path() -> pathlib.Path:
     maybe_scripts_path_string = sysconfig.get_path("scripts")
-    if maybe_scripts_path_string is None:
-        raise ssst.SsstError()
+    if maybe_scripts_path_string is None:  # pragma: no cover
+        raise ssst.InternalError("No scripts path defined.")
 
     return pathlib.Path(maybe_scripts_path_string)
 
@@ -125,7 +121,6 @@ def compile_paths(
     suffix: str = "_ui",
     encoding: str = "utf-8",
     output: typing.Callable[..., object] = _do_nothing,
-    rewrite_for_qtpy: bool = False,
 ) -> None:
     # If you import at the top you hazard beating the configuration of QtPy.  Not
     # a preferred design but it is reality.
@@ -150,9 +145,7 @@ def compile_paths(
         )
 
         intermediate = completed_process.stdout.decode("utf-8")
-
-        if rewrite_for_qtpy:
-            intermediate = intermediate.replace(f"from {qtpy.API_NAME}", "from qtpy")
+        intermediate = intermediate.replace(f"from {qtpy.API_NAME}", "from qtpy")
 
         with open(out_path, "w", encoding=encoding) as out_file:
             out_file.write(intermediate)

@@ -25,7 +25,9 @@ def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
 def pytest_configure(config: _pytest.config.Config) -> None:
     qt_api_string = config.getoption("--qt-api")
     qt_api = ssst.cli.qt_api_cli_names[qt_api_string]
-    ssst._utilities.configure_qtpy(api=qt_api)
+
+    if qt_api is not None:
+        ssst._utilities.configure_qtpy(api=qt_api)
 
     # subprocessing to avoid import of qtpy, even in subprocessed tests
     script_path = ssst._utilities.script_path(name="ssst")
