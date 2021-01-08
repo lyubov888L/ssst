@@ -1,7 +1,5 @@
 import pathlib
 import shutil
-import tempfile
-import typing
 
 import importlib_resources
 import pytest
