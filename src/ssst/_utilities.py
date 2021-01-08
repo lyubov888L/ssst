@@ -65,19 +65,19 @@ def compile_ui(
 #       https://github.com/altendky/ssst/issues/15
 
 
-def _do_nothing(*args, **kwargs):
+def _do_nothing(*args: object, **kwargs: object) -> None:
     pass
 
 
 def generic_compile_ui(
-    file_paths=(),
-    directory_paths=(),
-    extension=".ui",
-    suffix="_ui",
-    encoding="utf-8",
-    output=_do_nothing,
-    rewrite_for_qtpy=False,
-):
+    file_paths: typing.Sequence[pathlib.Path] = (),
+    directory_paths: typing.Sequence[pathlib.Path] = (),
+    extension: str = ".ui",
+    suffix: str = "_ui",
+    encoding: str = "utf-8",
+    output: typing.Callable[..., object] = _do_nothing,
+    rewrite_for_qtpy: bool = False,
+) -> None:
     paths = collect_paths(
         file_paths=file_paths,
         directory_paths=directory_paths,
@@ -93,7 +93,11 @@ def generic_compile_ui(
     )
 
 
-def collect_paths(file_paths=(), directory_paths=(), extension=".ui"):
+def collect_paths(
+    file_paths: typing.Sequence[pathlib.Path] = (),
+    directory_paths: typing.Sequence[pathlib.Path] = (),
+    extension: str = ".ui",
+) -> typing.List[pathlib.Path]:
     file_paths = [pathlib.Path(path) for path in file_paths]
 
     for directory in directory_paths:
@@ -117,12 +121,12 @@ def script_path(name: str) -> pathlib.Path:
 
 
 def compile_paths(
-    ui_paths,
-    suffix="_ui",
-    encoding="utf-8",
-    output=_do_nothing,
-    rewrite_for_qtpy=False,
-):
+    ui_paths: typing.Sequence[pathlib.Path],
+    suffix: str = "_ui",
+    encoding: str = "utf-8",
+    output: typing.Callable[..., object] = _do_nothing,
+    rewrite_for_qtpy: bool = False,
+) -> None:
     # If you import at the top you hazard beating the configuration of QtPy.  Not
     # a preferred design but it is reality.
 
