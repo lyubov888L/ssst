@@ -116,6 +116,7 @@ class TaskStatusProtocol(typing_extensions.Protocol):
     """Fill the gap since Trio doesn't provide type hints for the task status objects
     discussed in :meth:`trio.Nursery.start`.
     """
+
     def started(self, item: object) -> None:
         ...
 
@@ -152,7 +153,7 @@ class Window:
     ) -> None:
         """Run the window.  If :meth:`trio.Nursery.start` is used to launch the task
         then it will indicate it has started after the widget has been shown.
-        
+
         Arguments:
             task_status: Generally passed by :meth:`trio.Nursery.start`, and otherwise
                 unspecified.
@@ -205,7 +206,7 @@ class Window:
             task_status: Generally passed by :meth:`trio.Nursery.start`, and otherwise
                 unspecified.
         """
-        
+
         async with present_and_consume_exceptions():
             async with trio.open_nursery() as nursery:
                 instance = cls(title=title)

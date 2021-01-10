@@ -141,7 +141,7 @@ def generic_compile_ui(
             path
             for directory in directory_paths
             for path in pathlib.Path(directory).rglob("*" + extension)
-         )
+        ),
     ]
 
     compile_paths(

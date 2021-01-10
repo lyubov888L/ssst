@@ -13,8 +13,7 @@ class SsstError(Exception):
 
 
 class InternalError(Exception):
-    """Raised when things that should not happen do, and they aren't the user's fault.
-    """
+    """Raised when things that should not happen do, and they aren't the user's fault."""
 
     # https://github.com/sphinx-doc/sphinx/issues/7493
     __module__ = "ssst"
@@ -33,6 +32,7 @@ class ReuseError(SsstError):
     """Some widgets are not meant for reuse and will raise this error when reuse is
     attempted.
     """
+
     def __init__(self, cls: type) -> None:
         super().__init__(f"Instances of {cls} are not allowed to be reused.")
 
@@ -44,6 +44,7 @@ class UnexpectedEmissionError(InternalError):
     """Like an :class:`ssst.InternalError`, but specifically for emissions that we
     didn't expect.
     """
+
     def __init__(self, emission: "qtrio.Emission") -> None:
         super().__init__(f"Unexpected emission: {emission!r}")
 
