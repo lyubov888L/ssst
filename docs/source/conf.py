@@ -111,9 +111,9 @@ author = "The SSST authors"
 # built documents.
 #
 # The short X.Y version.
-import ssst
+import importlib_metadata
 
-version = ssst.__version__
+version = importlib_metadata.version("ssst")
 # The full version, including alpha/beta/rc tags.
 release = version
 

@@ -1,4 +1,7 @@
-import qtrio
+import typing
+
+if typing.TYPE_CHECKING:
+    import qtrio
 
 
 class SsstError(Exception):

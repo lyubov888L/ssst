@@ -88,9 +88,9 @@ async def present_and_consume_exceptions(
 class SignaledMainWindow(QtWidgets.QMainWindow):
     """Adds ``closed`` and ``shown`` signals to a :class:`QtWidgets.QMainWindow`."""
 
-    closed = QtCore.Signal()
+    closed: QtCore.Signal = QtCore.Signal()
     """Emitted by an accepted :class:`QtGui.QCloseEvent`."""
-    shown = QtCore.Signal()
+    shown: QtCore.Signal = QtCore.Signal()
     """Emitted by an accepted :class:`QtGui.QShowEvent`."""
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
