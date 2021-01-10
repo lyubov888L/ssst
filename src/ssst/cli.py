@@ -19,7 +19,10 @@ qt_api_cli_names: typing.Dict[str, typing.Optional[ssst._utilities.QtApis]] = {
 
 @click.group()
 def cli() -> None:
-    pass
+    """SunSpec Service Tool (SSST)
+
+    For Modbus TCP SunSpec access.
+    """
 
 
 @cli.command()
@@ -34,6 +37,8 @@ def cli() -> None:
     ),
 )
 def gui(qt_api_string: str) -> None:  # pragma: no cover
+    """Launch the main GUI application."""
+
     # TODO: This is generally actually covered by
     #       ssst._tests.test_cli.test_gui_persists but the coverage recording or
     #       reporting isn't working out.
@@ -54,8 +59,13 @@ def gui(qt_api_string: str) -> None:  # pragma: no cover
 
 @cli.command()
 def uic() -> None:  # pragma: no cover
+    """Compile the Qt UI files.  This is generally not a thing you need to do outside
+    of development.
+    """
     # Coverage not required during testing since this has to work to create all the
     # UI modules that the tests exercise anyways.  Sort of...
+    import qtpy
+
     import ssst._utilities
 
     ssst._utilities.compile_ui(output=click.echo)
