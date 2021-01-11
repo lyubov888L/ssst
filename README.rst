@@ -23,7 +23,12 @@ Resources
 Introduction
 ------------
 
-This is an exploratory application using QTrio.
+This is an exploratory application using `QTrio`_.
+In general, it will provide visually laid out widgets for data dashboards.
+The data will be read and set over Modbus TCP using the `SunSpec`_ high level protocol.
+
+.. _Qtrio: https://qtrio.readthedocs.io/en/stable/
+.. _SunSpec: https://sunspec.org/
 
 
 Installation
