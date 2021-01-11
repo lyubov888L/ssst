@@ -30,6 +30,8 @@ sys.path.insert(0, os.path.abspath("../.."))
 nitpicky = True
 # Except for these ones, which we expect to point to unknown targets:
 nitpick_ignore = [
+    # TODO: maybe fix this?  add docs for the UI classes?
+    ("py:class", "ssst.gui.main_ui.Ui_MainWindow"),
 ]
 
 # -- General configuration ------------------------------------------------
@@ -48,6 +50,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
+    "sphinx_inline_tabs",
     "sphinx_qt_documentation",
     "sphinxcontrib_trio",
 ]
@@ -59,6 +62,7 @@ intersphinx_mapping = {
     "PySide2": ("https://doc.qt.io/qtforpython", None),
     "pytest": ("https://docs.pytest.org/en/stable", None),
     "pytest-trio": ("https://pytest-trio.readthedocs.io/en/stable", None),
+    "qtrio": ("https://qtrio.readthedocs.io/en/stable", None),
     "trio": ("https://trio.readthedocs.io/en/stable", None),
 }
 
@@ -107,9 +111,9 @@ author = "The SSST authors"
 # built documents.
 #
 # The short X.Y version.
-import ssst
+import importlib_metadata
 
-version = ssst.__version__
+version = importlib_metadata.version("ssst")
 # The full version, including alpha/beta/rc tags.
 release = version
 

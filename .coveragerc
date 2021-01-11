@@ -9,6 +9,11 @@ exclude_lines =
   pragma: no cover
   abc\.abstractmethod
   typing\.overload
+  if typing.TYPE_CHECKING:
+  ^\s*pass\s*$
+  ^\s*...\s*$
+omit =
+  *_ui.py
 
 [run]
 branch = True

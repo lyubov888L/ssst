@@ -1,7 +1,12 @@
+import pathlib
+import shutil
+
+import importlib_resources
 import pytest
 import _pytest.pytester
 import qtpy
 
+import ssst._tests
 import ssst._utilities
 
 
@@ -122,6 +127,65 @@ def test_configure_qtpy_handles_env_var(
         import qtpy
 
         assert qtpy.API == {api.value!r}
+    """
+    pytester.makepyfile(content)
+    run_result = pytester.runpytest_subprocess()
+    run_result.assert_outcomes(passed=1)
+
+
+@pytest.fixture(name="tmp_path_with_ui")
+def tmp_path_with_ui_fixture(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    directory_path = tmp_path_factory.mktemp(
+        basename="tmp_path_with_ui_fixture", numbered=True
+    )
+
+    name = "example.ui"
+
+    ui_source_file = importlib_resources.open_binary(package=ssst._tests, resource=name)
+    ui_target_path = directory_path.joinpath(name)
+
+    with ui_target_path.open("wb") as ui_target_file:
+        shutil.copyfileobj(ui_source_file, ui_target_file)
+
+    return directory_path
+
+
+def test_compile_ui_defaults_to_no_output(
+    capsys: pytest.CaptureFixture,
+    tmp_path_with_ui: pathlib.Path,
+) -> None:
+    ssst._utilities.compile_ui(directory_path=[tmp_path_with_ui])
+
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+
+def test_compile_ui_creates_expected_path(tmp_path_with_ui: pathlib.Path) -> None:
+    [source_ui] = tmp_path_with_ui.iterdir()
+    expected_ui_py = tmp_path_with_ui.joinpath(f"{source_ui.stem}_ui.py")
+
+    assert set(tmp_path_with_ui.iterdir()) == {source_ui}
+
+    ssst._utilities.compile_ui(directory_path=[tmp_path_with_ui])
+
+    assert set(tmp_path_with_ui.iterdir()) == {source_ui, expected_ui_py}
+
+
+def test_compile_paths_raises_if_qtpy_not_imported(
+    pytester: _pytest.pytester.Pytester,
+) -> None:
+    content = f"""
+    import pytest
+
+    import ssst._utilities
+
+
+    def test():
+        with pytest.raises(
+            ssst.QtpyError,
+            match="QtPy is expected to be imported before calling this function.",
+        ):
+            ssst._utilities.compile_paths(ui_paths=[])
     """
     pytester.makepyfile(content)
     run_result = pytester.runpytest_subprocess()

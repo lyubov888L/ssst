@@ -1,8 +1,12 @@
 .. include:: ../../README.rst
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   private/utilities.rst
+    main.rst
+    exceptions.rst
+    cli.rst
+    history.rst
+    private/utilities.rst
 
 * :ref:`genindex`

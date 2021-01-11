@@ -23,7 +23,63 @@ Resources
 Introduction
 ------------
 
-This is an exploratory application using QTrio.
+This is an exploratory application using `QTrio`_.
+In general, it will provide visually laid out widgets for data dashboards.
+The data will be read and set over Modbus TCP using the `SunSpec`_ high level protocol.
+
+.. _Qtrio: https://qtrio.readthedocs.io/en/stable/
+.. _SunSpec: https://sunspec.org/
+
+
+Installation
+------------
+
+This application is not yet published to PyPI nor built into directly runnable packages.
+It is installable via either cloning and installing or directly via the Git repository.
+When installing the Python package itself, it is recommended to work in a virtual environment.
+For a quick introduction, see `Python Virtual Environments in Five Minutes <virtual_environments_>`_.
+
+.. tab:: Unix/macOS
+
+    .. code-block:: console
+
+        $ myvenv/bin/pip install git+https://github.com/altendky/ssst
+
+.. tab:: Windows
+
+    .. code-block:: console
+
+        $ myvenv/scripts/pip install git+https://github.com/altendky/ssst
+
+.. _virtual_environments: https://chriswarrick.com/blog/2018/09/04/python-virtual-environments/
+
+
+Running
+-------
+
+Two main means of launching the application are provided.
+A directly runnable console script and a Python module runnable using ``python -m``.
+
+.. tab:: Unix/macOS
+
+    .. code-block:: console
+
+        $ myvenv/bin/ssst gui
+
+    .. code-block:: console
+
+        $ myvenv/bin/python -m ssst gui
+
+.. tab:: Windows
+
+    .. code-block:: console
+
+        $ myvenv/scripts/ssst gui
+
+    .. code-block:: console
+
+        $ myvenv/scripts/python -m ssst gui
+
 
 .. _documentation: https://ssst.readthedocs.io
 .. |documentation badge| image:: https://img.shields.io/badge/docs-read%20now-blue.svg?color=royalblue&logo=Read-the-Docs&logoColor=whitesmoke
