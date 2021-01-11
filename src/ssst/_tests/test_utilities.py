@@ -169,3 +169,24 @@ def test_compile_ui_creates_expected_path(tmp_path_with_ui: pathlib.Path) -> Non
     ssst._utilities.compile_ui(directory_path=[tmp_path_with_ui])
 
     assert set(tmp_path_with_ui.iterdir()) == {source_ui, expected_ui_py}
+
+
+def test_compile_paths_raises_if_qtpy_not_imported(
+    pytester: _pytest.pytester.Pytester,
+) -> None:
+    content = f"""
+    import pytest
+
+    import ssst._utilities
+
+
+    def test():
+        with pytest.raises(
+            ssst.QtpyError,
+            match="QtPy is expected to be imported before calling this function.",
+        ):
+            ssst._utilities.compile_paths(ui_paths=[])
+    """
+    pytester.makepyfile(content)
+    run_result = pytester.runpytest_subprocess()
+    run_result.assert_outcomes(passed=1)

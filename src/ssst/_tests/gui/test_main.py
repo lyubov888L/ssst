@@ -1,5 +1,6 @@
 import functools
 
+import pytest
 import trio
 
 import ssst.gui.main
@@ -46,3 +47,13 @@ async def test_emissions_exception_shows_dialog(nursery):
         main_window.ui.raise_button.click()
 
     assert main_window.emissions_exception_presenter.message_box is not None
+
+
+async def test_window_reuse_raises(nursery):
+    window = await nursery.start(
+        functools.partial(ssst.gui.main.Window.start, title="")
+    )
+    window.widget.close()
+
+    with pytest.raises(ssst.ReuseError, match=str(ssst.gui.main.Window)):
+        await window.run()

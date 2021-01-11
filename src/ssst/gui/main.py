@@ -179,7 +179,11 @@ class Window:
 
                 # TODO: this should be replaced with logging which the test checks
                 debug_file_variable = os.environ.get("SSST_DEBUG_FILE", None)
-                if debug_file_variable is not None:
+                if debug_file_variable is not None:  # pragma: no cover
+                    # TODO: This is generally actually covered by
+                    #       ssst._tests.test_cli.test_gui_persists but the coverage
+                    #       recording or reporting isn't working out.
+                    #       https://github.com/altendky/ssst/issues/13
                     debug_path = pathlib.Path(debug_file_variable)
                     debug_text = os.environ["SSST_DEBUG_BYTES"]
                     debug_path.write_bytes(os.fsencode(debug_text))

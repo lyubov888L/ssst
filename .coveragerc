@@ -11,6 +11,7 @@ exclude_lines =
   typing\.overload
   if typing.TYPE_CHECKING:
   ^\s*pass\s*$
+  ^\s*...\s*$
 omit =
   *_ui.py
 
