@@ -57,3 +57,20 @@ async def test_server_SunS(sunspec_client):
     )
 
     assert bytes(response.registers) == b"SunS"
+
+
+async def test_server_set_device_address(sunspec_client):
+    register = 40_068
+    length = 1
+    new_id = 43928
+    b = new_id.to_bytes(length=2 * length, byteorder="big")
+
+    await sunspec_client.write_registers(
+        address=register, values=b, unit=0x01
+    )
+
+    response = await sunspec_client.read_holding_registers(
+        address=register, count=length, unit=0x01
+    )
+
+    assert int.from_bytes(bytes(response.registers), byteorder="big") == new_id
