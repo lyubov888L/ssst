@@ -45,7 +45,7 @@ class InvalidBaseAddressError(SsstError):
 
         sentinel = repr(ssst.sunspec.base_address_sentinel)
         super().__init__(
-            f"SunSpec sentinel {sentinel} not found at {address}: {bytes!r}"
+            f"SunSpec sentinel {sentinel} not found at {address}: {value!r}"
         )
 
     # https://github.com/sphinx-doc/sphinx/issues/7493

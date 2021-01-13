@@ -1,3 +1,7 @@
+import re
+
+import pytest
+
 import ssst._tests.conftest
 import ssst.sunspec.client
 import ssst.sunspec.server
@@ -7,6 +11,26 @@ async def test_scan_adds_models(sunspec_client: ssst.sunspec.client.Client):
     model_ids = [model.model_id for model in sunspec_client.sunspec_device.model_list]
 
     assert model_ids == [1, 17, 103, 126]
+
+
+async def test_scan_raises_for_missing_sentinel_when_searching(
+    unscanned_sunspec_client: ssst.sunspec.client.Client,
+):
+    unscanned_sunspec_client.sunspec_device.base_addr_list[:] = [40_010, 40_020]
+
+    message = "SunSpec sentinel b'SunS' not found while searching: 40010, 40020"
+    with pytest.raises(ssst.BaseAddressNotFoundError, match=f"^{re.escape(message)}$"):
+        await unscanned_sunspec_client.scan()
+
+
+async def test_scan_raises_for_missing_sentinel_when_address_specified(
+    unscanned_sunspec_client: ssst.sunspec.client.Client,
+):
+    unscanned_sunspec_client.sunspec_device.base_addr = 40_001
+
+    message = r"SunSpec sentinel b'SunS' not found at 40001: b'nS\x00\x01'"
+    with pytest.raises(ssst.InvalidBaseAddressError, match=f"^{re.escape(message)}$"):
+        await unscanned_sunspec_client.scan()
 
 
 async def test_model_addresses(sunspec_client: ssst.sunspec.client.Client):

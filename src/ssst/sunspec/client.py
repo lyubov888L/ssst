@@ -52,7 +52,9 @@ class Client:
                     self.sunspec_device.base_addr = maybe_base_address
                     break
             else:
-                raise ssst.BaseAddressNotFoundError()
+                raise ssst.BaseAddressNotFoundError(
+                    addresses=self.sunspec_device.base_addr_list
+                )
         else:
             read_bytes = await self.read_registers(
                 address=self.sunspec_device.base_addr,
