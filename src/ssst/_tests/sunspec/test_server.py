@@ -1,76 +1,32 @@
-import functools
-
-import attr
-import pymodbus.client.asynchronous.tcp
-import pymodbus.client.asynchronous.schedulers
-import pytest
-import trio
-
-import ssst.sunspec.server
+import ssst._tests.conftest
+import ssst.sunspec
 
 
-@attr.s(auto_attribs=True, frozen=True)
-class SunSpecServerFixtureResult:
-    host: str
-    port: int
+async def test_base_address_marker(
+    sunspec_client: ssst.sunspec.client.Client,
+):
+    register_bytes = await sunspec_client.read_registers(address=40_000, count=2)
+
+    assert register_bytes == ssst.sunspec.base_address_sentinel
 
 
-@pytest.fixture(name="sunspec_server")
-async def sunspec_server_fixture(nursery):
-    model_summaries = [
-        ssst.sunspec.server.ModelSummary(id=1, length=66),
-    ]
-
-    server_callable = ssst.sunspec.server.create_server_callable(
-        model_summaries=model_summaries
-    )
-
-    result = SunSpecServerFixtureResult(host="127.0.0.1", port=5020)
-
-    await nursery.start(
-        functools.partial(
-            trio.serve_tcp,
-            server_callable,
-            port=result.port,
-            host=result.host,
-        ),
-    )
-
-    yield result
+async def test_addresses(
+    sunspec_server: ssst._tests.conftest.SunSpecServerFixtureResult,
+):
+    point = sunspec_server.server[17].points["Bits"]
+    assert point.model.model_addr + point.offset == 40_078
 
 
-@pytest.fixture(name="sunspec_client")
-async def sunspec_client_fixture(sunspec_server):
-    client = pymodbus.client.asynchronous.tcp.AsyncModbusTCPClient(
-        scheduler=pymodbus.client.asynchronous.schedulers.TRIO,
-        host=sunspec_server.host,
-        port=sunspec_server.port,
-    )
-
-    async with client.manage_connection() as protocol:
-        yield protocol
-
-
-async def test_server_SunS(sunspec_client):
-    response = await sunspec_client.read_holding_registers(
-        address=40_000, count=2, unit=0x01
-    )
-
-    assert bytes(response.registers) == b"SunS"
-
-
-async def test_server_set_device_address(sunspec_client):
-    register = 40_068
-    length = 1
+async def test_write_registers(
+    sunspec_server: ssst._tests.conftest.SunSpecServerFixtureResult,
+    sunspec_client: ssst.sunspec.client.Client,
+):
+    model = sunspec_server.server[1]
+    point = model.points["DA"]
+    address = model.model_addr + point.offset
     new_id = 43928
-    b = new_id.to_bytes(length=2 * length, byteorder="big")
 
-    await sunspec_client.write_registers(
-        address=register, values=b, unit=0x01
-    )
+    bytes_to_write = point.info.to_data(new_id)
+    await sunspec_client.write_registers(address=address, values=bytes_to_write)
 
-    response = await sunspec_client.read_holding_registers(
-        address=register, count=length, unit=0x01
-    )
-
-    assert int.from_bytes(bytes(response.registers), byteorder="big") == new_id
+    assert point.get_mb() == bytes_to_write
