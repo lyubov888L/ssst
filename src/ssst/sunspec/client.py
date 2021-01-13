@@ -8,6 +8,7 @@ import pymodbus.client.asynchronous.trio
 import pymodbus.client.common
 import sunspec2.mb
 import sunspec2.modbus.client
+import pymodbus.pdu
 
 import ssst.sunspec
 
@@ -19,7 +20,7 @@ class Client:
     protocol: typing.Optional[pymodbus.client.common.ModbusClientMixin] = None
 
     @classmethod
-    def build(cls, host, port):
+    def build(cls, host: str, port: int) -> "Client":
         modbus_client = pymodbus.client.asynchronous.tcp.AsyncModbusTCPClient(
             scheduler=pymodbus.client.asynchronous.schedulers.TRIO,
             host=host,
@@ -30,18 +31,20 @@ class Client:
         return cls(modbus_client=modbus_client, sunspec_device=sunspec_device)
 
     @async_generator.asynccontextmanager
-    async def manage_connection(self):
+    async def manage_connection(self) -> typing.AsyncIterator["Client"]:
         try:
             async with self.modbus_client.manage_connection() as self.protocol:
                 yield self
         finally:
             self.protocol = None
 
-    def __getitem__(self, item):
+    def __getitem__(
+        self, item: typing.Union[int, str]
+    ) -> sunspec2.modbus.client.SunSpecModbusClientModel:
         [model] = self.sunspec_device.models[item]
         return model
 
-    async def scan(self):
+    async def scan(self) -> None:
         if self.sunspec_device.base_addr is None:
             for maybe_base_address in self.sunspec_device.base_addr_list:
                 read_bytes = await self.read_registers(
@@ -109,14 +112,22 @@ class Client:
             )
             self.sunspec_device.add_model(model)
 
-    async def read_registers(self, address, count):
+    async def read_registers(self, address: int, count: int) -> bytes:
+        if self.protocol is None:
+            raise ssst.InvalidActionError("Cannot read without a managed connection.")
+
         response = await self.protocol.read_holding_registers(
             address=address, count=count, unit=0x01
         )
 
+        if isinstance(response, pymodbus.pdu.ExceptionResponse):
+            raise ssst.ModbusError(exception=response)
+
         return bytes(response.registers)
 
-    async def read_point(self, point: sunspec2.modbus.client.SunSpecModbusClientPoint):
+    async def read_point(
+        self, point: sunspec2.modbus.client.SunSpecModbusClientPoint
+    ) -> typing.Union[float, int]:
         if point.sf is not None:
             await self.read_point(point=point.model.points[point.sf])
 
@@ -125,10 +136,31 @@ class Client:
             count=point.len,
         )
         point.set_mb(data=read_bytes)
-        return point.value
+        return point.cvalue  # type: ignore[no-any-return]
 
-    def point_address(self, point: sunspec2.modbus.client.SunSpecModbusClientPoint):
-        return point.model.model_addr + point.offset
+    def point_address(
+        self, point: sunspec2.modbus.client.SunSpecModbusClientPoint
+    ) -> int:
+        return point.model.model_addr + point.offset  # type: ignore[no-any-return]
 
-    async def write_registers(self, address, values):
-        await self.protocol.write_registers(address=address, values=values, unit=0x01)
+    async def write_registers(self, address: int, values: bytes) -> None:
+        if self.protocol is None:
+            raise ssst.InvalidActionError("Cannot write without a managed connection.")
+
+        response = await self.protocol.write_registers(
+            address=address, values=values, unit=0x01
+        )
+
+        if isinstance(response, pymodbus.pdu.ExceptionResponse):
+            raise ssst.ModbusError(exception=response)
+
+    async def write_point(
+        self, point: sunspec2.modbus.client.SunSpecModbusClientPoint
+    ) -> None:
+        if point.sf is not None:
+            await self.read_point(point=point.model.points[point.sf])
+
+        bytes_to_write = point.get_mb()
+        await self.write_registers(
+            address=self.point_address(point=point), values=bytes_to_write
+        )

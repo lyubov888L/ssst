@@ -33,7 +33,9 @@ class SunSpecServerFixtureResult:
 
 
 @pytest.fixture(name="sunspec_server")
-async def sunspec_server_fixture(nursery):
+async def sunspec_server_fixture(
+    nursery: trio.Nursery,
+) -> typing.AsyncIterator[SunSpecServerFixtureResult]:
     model_summaries = [
         ssst.sunspec.server.ModelSummary(id=1, length=66),
         ssst.sunspec.server.ModelSummary(id=17, length=12),
@@ -62,7 +64,9 @@ async def sunspec_server_fixture(nursery):
 
 
 @pytest.fixture(name="unscanned_sunspec_client")
-async def unscanned_sunspec_client_fixture(sunspec_server):
+async def unscanned_sunspec_client_fixture(
+    sunspec_server: ssst._tests.conftest.SunSpecServerFixtureResult,
+) -> typing.AsyncIterator[ssst.sunspec.client.Client]:
     client = ssst.sunspec.client.Client.build(
         host=sunspec_server.host,
         port=sunspec_server.port,
@@ -73,6 +77,8 @@ async def unscanned_sunspec_client_fixture(sunspec_server):
 
 
 @pytest.fixture(name="sunspec_client")
-async def sunspec_client_fixture(unscanned_sunspec_client):
+async def sunspec_client_fixture(
+    unscanned_sunspec_client: ssst.sunspec.client.Client,
+) -> ssst.sunspec.client.Client:
     await unscanned_sunspec_client.scan()
     return unscanned_sunspec_client

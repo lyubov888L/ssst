@@ -3,11 +3,13 @@
 from ssst._version import __version__
 
 from ssst.exceptions import (
+    SsstError,
     BaseAddressNotFoundError,
     InternalError,
     InvalidBaseAddressError,
+    InvalidActionError,
+    ModbusError,
     QtpyError,
     ReuseError,
-    SsstError,
     UnexpectedEmissionError,
 )

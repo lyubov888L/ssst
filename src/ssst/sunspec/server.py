@@ -8,6 +8,7 @@ import pymodbus.server.trio
 import pymodbus.interfaces
 import sunspec2.mb
 import sunspec2.modbus.client
+import trio
 
 import ssst.sunspec
 
@@ -27,7 +28,7 @@ class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
     """The valid range is exclusive of this address."""
     single: bool = attr.ib(default=True, init=False)
 
-    def getValues(self, fx, address, count=1):
+    def getValues(self, fx: int, address: int, count: int = 1) -> bytearray:
         request = PreparedRequest.build(
             base_address=self.sunspec_device.base_addr,
             requested_address=address,
@@ -36,7 +37,7 @@ class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
         )
         return request.data[request.slice]
 
-    def setValues(self, fx, address, values):
+    def setValues(self, fx: int, address: int, values: bytes) -> None:
         request = PreparedRequest.build(
             base_address=self.sunspec_device.base_addr,
             requested_address=address,
@@ -47,13 +48,13 @@ class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
         data[request.slice] = values
         self.sunspec_device.set_mb(data=data[len(ssst.sunspec.base_address_sentinel) :])
 
-    def validate(self, fx, address, count=1):
+    def validate(self, fx: int, address: int, count: int = 1) -> bool:
         return (
             self.sunspec_device.base_addr <= address
             and address + count <= self.end_address()
         )
 
-    def end_address(self):
+    def end_address(self) -> int:
         return (
             base_address
             + (
@@ -61,7 +62,7 @@ class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
                     len(ssst.sunspec.base_address_sentinel)
                     + len(self.sunspec_device.get_mb())
                 )
-                / 2
+                // 2
             )
             + 2
         )
@@ -74,7 +75,7 @@ class Server:
     identity: pymodbus.device.ModbusDeviceIdentification
 
     @classmethod
-    def build(cls, model_summaries: typing.Sequence[ModelSummary]):
+    def build(cls, model_summaries: typing.Sequence[ModelSummary]) -> "Server":
         address = base_address + len(ssst.sunspec.base_address_sentinel) // 2
         sunspec_device = sunspec2.modbus.client.SunSpecModbusClientDevice()
         sunspec_device.base_addr = base_address
@@ -100,12 +101,14 @@ class Server:
             identity=pymodbus.device.ModbusDeviceIdentification(),
         )
 
-    def __getitem__(self, item):
+    def __getitem__(
+        self, item: typing.Union[int, str]
+    ) -> sunspec2.modbus.client.SunSpecModbusClientModel:
         [model] = self.slave_context.sunspec_device.models[item]
         return model
 
-    async def tcp_server(self, server_stream):
-        return await pymodbus.server.trio.tcp_server(
+    async def tcp_server(self, server_stream: trio.SocketStream) -> None:
+        await pymodbus.server.trio.tcp_server(
             server_stream=server_stream,
             context=self.server_context,
             identity=self.identity,
