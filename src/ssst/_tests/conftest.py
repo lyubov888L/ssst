@@ -67,12 +67,10 @@ async def sunspec_server_fixture(
 async def unscanned_sunspec_client_fixture(
     sunspec_server: SunSpecServerFixtureResult,
 ) -> typing.AsyncIterator[ssst.sunspec.client.Client]:
-    client = ssst.sunspec.client.Client.build(
+    async with ssst.sunspec.client.open_client(
         host=sunspec_server.host,
         port=sunspec_server.port,
-    )
-
-    async with client.manage_connection():
+    ) as client:
         yield client
 
 

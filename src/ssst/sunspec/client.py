@@ -13,30 +13,24 @@ import pymodbus.pdu
 import ssst.sunspec
 
 
+@async_generator.asynccontextmanager
+async def open_client(host: str, port: int) -> typing.AsyncIterator["Client"]:
+    modbus_client = pymodbus.client.asynchronous.tcp.AsyncModbusTCPClient(
+        scheduler=pymodbus.client.asynchronous.schedulers.TRIO,
+        host=host,
+        port=port,
+    )
+    sunspec_device = sunspec2.modbus.client.SunSpecModbusClientDevice()
+
+    async with modbus_client.manage_connection() as protocol:
+        yield Client(modbus_client=modbus_client, sunspec_device=sunspec_device, protocol=protocol)
+
+
 @attr.s(auto_attribs=True)
 class Client:
     modbus_client: pymodbus.client.asynchronous.trio.TrioModbusTcpClient
     sunspec_device: sunspec2.modbus.client.SunSpecModbusClientDevice
-    protocol: typing.Optional[pymodbus.client.common.ModbusClientMixin] = None
-
-    @classmethod
-    def build(cls, host: str, port: int) -> "Client":
-        modbus_client = pymodbus.client.asynchronous.tcp.AsyncModbusTCPClient(
-            scheduler=pymodbus.client.asynchronous.schedulers.TRIO,
-            host=host,
-            port=port,
-        )
-        sunspec_device = sunspec2.modbus.client.SunSpecModbusClientDevice()
-
-        return cls(modbus_client=modbus_client, sunspec_device=sunspec_device)
-
-    @async_generator.asynccontextmanager
-    async def manage_connection(self) -> typing.AsyncIterator["Client"]:
-        try:
-            async with self.modbus_client.manage_connection() as self.protocol:
-                yield self
-        finally:
-            self.protocol = None
+    protocol: pymodbus.client.common.ModbusClientMixin
 
     def __getitem__(
         self, item: typing.Union[int, str]
@@ -113,9 +107,6 @@ class Client:
             self.sunspec_device.add_model(model)
 
     async def read_registers(self, address: int, count: int) -> bytes:
-        if self.protocol is None:
-            raise ssst.InvalidActionError("Cannot read without a managed connection.")
-
         response = await self.protocol.read_holding_registers(
             address=address, count=count, unit=0x01
         )
@@ -144,9 +135,6 @@ class Client:
         return point.model.model_addr + point.offset  # type: ignore[no-any-return]
 
     async def write_registers(self, address: int, values: bytes) -> None:
-        if self.protocol is None:
-            raise ssst.InvalidActionError("Cannot write without a managed connection.")
-
         response = await self.protocol.write_registers(
             address=address, values=values, unit=0x01
         )

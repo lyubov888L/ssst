@@ -7,7 +7,6 @@ from ssst.exceptions import (
     BaseAddressNotFoundError,
     InternalError,
     InvalidBaseAddressError,
-    InvalidActionError,
     ModbusError,
     QtpyError,
     ReuseError,
