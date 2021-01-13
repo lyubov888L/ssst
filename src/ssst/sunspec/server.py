@@ -26,9 +26,9 @@ class ModelSummary:
 class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
     sunspec_device: sunspec2.modbus.client.SunSpecModbusClientDevice
     """The valid range is exclusive of this address."""
-    single: bool = attr.ib(default=True, init=False)
 
     def getValues(self, fx: int, address: int, count: int = 1) -> bytearray:
+        """See :meth:`pymodbus.interface.IModbusSlaveContext.getValues`."""
         request = PreparedRequest.build(
             base_address=self.sunspec_device.base_addr,
             requested_address=address,
@@ -38,6 +38,7 @@ class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
         return request.data[request.slice]
 
     def setValues(self, fx: int, address: int, values: bytes) -> None:
+        """See :meth:`pymodbus.interface.IModbusSlaveContext.setValues`."""
         request = PreparedRequest.build(
             base_address=self.sunspec_device.base_addr,
             requested_address=address,
@@ -49,12 +50,16 @@ class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
         self.sunspec_device.set_mb(data=data[len(ssst.sunspec.base_address_sentinel) :])
 
     def validate(self, fx: int, address: int, count: int = 1) -> bool:
+        """See :meth:`pymodbus.interface.IModbusSlaveContext.validate`."""
         return (
             self.sunspec_device.base_addr <= address
-            and address + count <= self.end_address()
+            and address + count <= self._end_address()
         )
 
-    def end_address(self) -> int:
+    def _end_address(self) -> int:
+        """Calculate the exclusive last address.  This is the first address which
+        cannot be read.
+        """
         return (
             base_address
             + (

@@ -51,11 +51,6 @@ class InvalidBaseAddressError(SsstError):
 
     # https://github.com/sphinx-doc/sphinx/issues/7493
     __module__ = "ssst"
-# class InvalidActionError(Exception):
-#     """Raised when an object is in a state where the requested action is invalid."""
-#
-#     # https://github.com/sphinx-doc/sphinx/issues/7493
-#     __module__ = "ssst"
 
 
 class ModbusError(SsstError):

@@ -5,7 +5,6 @@ Exceptions
 .. autoclass:: ssst.BaseAddressNotFoundError
 .. autoclass:: ssst.InternalError
 .. autoclass:: ssst.InvalidBaseAddressError
-.. autoclass:: ssst.InvalidActionError
 .. autoclass:: ssst.ModbusError
 .. autoclass:: ssst.QtpyError
 .. autoclass:: ssst.ReuseError
