@@ -16,7 +16,7 @@ async def test_model_addresses(sunspec_client: ssst.sunspec.client.Client):
 
 
 async def test_point_address(
-        sunspec_client: ssst.sunspec.client.Client,
+    sunspec_client: ssst.sunspec.client.Client,
 ):
     point = sunspec_client[17].points["Bits"]
     assert point.model.model_addr + point.offset == 40_078
