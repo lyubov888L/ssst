@@ -65,7 +65,7 @@ async def sunspec_server_fixture(
 
 @pytest.fixture(name="unscanned_sunspec_client")
 async def unscanned_sunspec_client_fixture(
-    sunspec_server: ssst._tests.conftest.SunSpecServerFixtureResult,
+    sunspec_server: SunSpecServerFixtureResult,
 ) -> typing.AsyncIterator[ssst.sunspec.client.Client]:
     client = ssst.sunspec.client.Client.build(
         host=sunspec_server.host,
