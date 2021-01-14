@@ -13,7 +13,7 @@ from qtpy import QtWidgets
 import qtrio._core  # TODO: uh...  private?
 import qtrio.dialogs
 import trio
-import typing_extensions
+import trio_typing
 
 import ssst.gui.main_ui
 
@@ -112,15 +112,6 @@ class SignaledMainWindow(QtWidgets.QMainWindow):
             pass
 
 
-class TaskStatusProtocol(typing_extensions.Protocol):
-    """Fill the gap since Trio doesn't provide type hints for the task status objects
-    discussed in :meth:`trio.Nursery.start`.
-    """
-
-    def started(self, item: object) -> None:
-        ...
-
-
 @attr.s(auto_attribs=True)
 class Window:
     """The main SSST window."""
@@ -149,7 +140,9 @@ class Window:
         raise Exception("This is a demonstration exception to show off its handling.")
 
     async def run(
-        self, *, task_status: TaskStatusProtocol = trio.TASK_STATUS_IGNORED
+        self,
+        *,
+        task_status: trio_typing.TaskStatus["Window"] = trio.TASK_STATUS_IGNORED,
     ) -> None:
         """Run the window.  If :meth:`trio.Nursery.start` is used to launch the task
         then it will indicate it has started after the widget has been shown.
@@ -199,7 +192,10 @@ class Window:
 
     @classmethod
     async def start(
-        cls, title: str, *, task_status: TaskStatusProtocol = trio.TASK_STATUS_IGNORED
+        cls,
+        title: str,
+        *,
+        task_status: trio_typing.TaskStatus["Window"] = trio.TASK_STATUS_IGNORED,
     ) -> None:
         """
         Creates and runs the window.  If :meth:`trio.Nursery.start` is used to launch
