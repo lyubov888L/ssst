@@ -161,10 +161,6 @@ async def test_write_point_with_scale_factor(
     assert point.cvalue == server_point.cvalue == scaled_watts
     assert scale_factor_point.cvalue == server_scale_factor_point.cvalue == scale_factor
 
-    # assert scale_factor_point.cvalue == server_scale_factor_point.cvalue
-    # assert server_scale_factor_point.cvalue == scale_factor
-    # assert server_point.cvalue == scaled_watts
-
 
 async def test_read_modbus_exception_raises(
     sunspec_client: ssst.sunspec.client.Client,
