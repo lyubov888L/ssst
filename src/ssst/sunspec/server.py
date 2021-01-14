@@ -21,6 +21,7 @@ class ModelSummary:
     """A model can be summarized by its ID and length.  While models of fixed length
     would not need the length provided, those with repeatable blocks need a length to
     indicate the number of repetitions of the repeating block."""
+
     id: int
     """The integer model ID."""
     length: int
@@ -32,6 +33,7 @@ class ModelSummary:
 class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
     """A :mod:`pymodbus` slave context that is backed by the ``pysunspec2`` device
     object."""
+
     sunspec_device: sunspec2.modbus.client.SunSpecModbusClientDevice
     """The ``pysunspec2`` device object use for local storage of the SunSpec data."""
 
