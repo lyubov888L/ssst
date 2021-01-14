@@ -10,6 +10,6 @@ Client
 Server
 ------
 .. autoclass:: ssst.sunspec.server.Server
-.. autoclass:: ssst..sunspec.server.ModelSummary
-.. autoclass:: ssst..sunspec.server.SunSpecModbusSlaveContext
-.. autoclass:: ssst..sunspec.server.PreparedRequest
+.. autoclass:: ssst.sunspec.server.ModelSummary
+.. autoclass:: ssst.sunspec.server.SunSpecModbusSlaveContext
+.. autoclass:: ssst.sunspec.server.PreparedRequest
