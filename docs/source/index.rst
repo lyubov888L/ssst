@@ -4,6 +4,7 @@
     :maxdepth: 2
 
     main.rst
+    sunspec.rst
     exceptions.rst
     cli.rst
     history.rst

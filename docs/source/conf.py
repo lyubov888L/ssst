@@ -58,6 +58,7 @@ extensions = [
 intersphinx_mapping = {
     "outcome": ("https://outcome.readthedocs.io/en/stable", None),
     "python": ("https://docs.python.org/3", None),
+    "pymodbus": ("https://pymodbus.readthedocs.io/en/stable", None),
     "PyQt5": ("https://www.riverbankcomputing.com/static/Docs/PyQt5", None),
     "PySide2": ("https://doc.qt.io/qtforpython", None),
     "pytest": ("https://docs.pytest.org/en/stable", None),
