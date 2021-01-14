@@ -196,6 +196,15 @@ class Client:
             count=point.len,
         )
         point.set_mb(data=read_bytes)
+
+        if point.pdef["type"] == "sunssf":
+            for other_point in point.model.points.values():
+                if other_point.sf == point.pdef["name"]:
+                    other_cvalue = other_point.cvalue
+                    other_point.sf_value = point.cvalue
+                    if other_cvalue is not None:
+                        other_point.cvalue = other_cvalue
+
         return point.cvalue  # type: ignore[no-any-return]
 
     def point_address(
@@ -250,5 +259,6 @@ class Client:
 
         bytes_to_write = point.get_mb()
         await self.write_registers(
-            address=self.point_address(point=point), values=bytes_to_write
+            address=self.point_address(point=point),
+            values=bytes_to_write,
         )

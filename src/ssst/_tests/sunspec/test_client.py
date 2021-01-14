@@ -135,3 +135,46 @@ async def test_write_point(
 
     server_point = sunspec_server.server[1].points["DA"]
     assert server_point.cvalue == new_id
+
+
+async def test_write_point_with_scale_factor(
+    sunspec_server: ssst._tests.conftest.SunSpecServerFixtureResult,
+    sunspec_client: ssst.sunspec.client.Client,
+) -> None:
+    point = sunspec_client[103].points["W"]
+    scale_factor_point = point.model.points[point.sf]
+
+    scale_factor = -2
+    scaled_watts = 273
+
+    server_point = sunspec_server.server[103].points["W"]
+    server_scale_factor_point = server_point.model.points[server_point.sf]
+
+    server_scale_factor_point.cvalue = scale_factor
+    server_point.cvalue = 0
+
+    scale_factor_point.cvalue = 0
+    point.cvalue = scaled_watts
+
+    await sunspec_client.write_point(point=point)
+
+    assert point.cvalue == server_point.cvalue == scaled_watts
+    assert scale_factor_point.cvalue == server_scale_factor_point.cvalue == scale_factor
+
+    # assert scale_factor_point.cvalue == server_scale_factor_point.cvalue
+    # assert server_scale_factor_point.cvalue == scale_factor
+    # assert server_point.cvalue == scaled_watts
+
+
+async def test_read_modbus_exception_raises(
+    sunspec_client: ssst.sunspec.client.Client,
+):
+    with pytest.raises(ssst.ModbusError):
+        await sunspec_client.read_registers(address=0, count=1)
+
+
+async def test_write_modbus_exception_raises(
+    sunspec_client: ssst.sunspec.client.Client,
+):
+    with pytest.raises(ssst.ModbusError):
+        await sunspec_client.write_registers(address=0, values=b":]")

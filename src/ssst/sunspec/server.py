@@ -52,7 +52,7 @@ class SunSpecModbusSlaveContext(pymodbus.interfaces.IModbusSlaveContext):
         request = PreparedRequest.build(
             base_address=self.sunspec_device.base_addr,
             requested_address=address,
-            count=len(values),
+            count=len(values) // 2,
             all_registers=self.sunspec_device.get_mb(),
         )
         data = bytearray(request.data)
