@@ -1,6 +1,8 @@
 import functools
 
 import pytest
+from qtpy import QtWidgets
+import qtrio
 import trio
 
 import ssst.gui.main
@@ -47,6 +49,30 @@ async def test_emissions_exception_shows_dialog(nursery):
         main_window.ui.raise_button.click()
 
     assert main_window.emissions_exception_presenter.message_box is not None
+
+
+async def test_emissions_exception_shows_dialog_on_unknown_emission(nursery):
+    window = ssst.gui.main.Window(title="")
+    await nursery.start(window.run)
+
+    widget_width_a_signal = QtWidgets.QPushButton()
+
+    # TODO: uh...  private?
+    import qtrio._core
+
+    async with qtrio._core.wait_signal_context(
+        signal=window.emissions_exception_presenter.message_box_created
+    ):
+        window._emissions.send_channel.send_nowait(
+            qtrio.Emission(signal=widget_width_a_signal.clicked, args=())
+        )
+
+    assert window.emissions_exception_presenter is not None
+
+    assert (
+        "ssst.UnexpectedEmissionError"
+        in window.emissions_exception_presenter.message_box.dialog.text()
+    )
 
 
 async def test_window_reuse_raises(nursery):

@@ -125,7 +125,9 @@ class Window:
     ui: ssst.gui.main_ui.Ui_MainWindow = attr.ib(factory=ssst.gui.main_ui.Ui_MainWindow)
     """The UI elements are stored in this attribute giving them a namespace which is
     separated from the code for the class."""
-    emissions_exception_presenter: ExceptionPresenter = ExceptionPresenter()
+    emissions_exception_presenter: ExceptionPresenter = attr.ib(
+        factory=ExceptionPresenter
+    )
     """The exception presenter used while handling emissions.  Generally only useful
     for testing purposes.
     """
@@ -133,6 +135,8 @@ class Window:
     """This widget is not rerunnable.  Track if it has been run and complain if it is
     reused.
     """
+    _emissions: typing.Optional[qtrio.Emissions] = None
+    """The emissions object for injecting emissions in testing."""
 
     async def raise_clicked(self) -> None:
         """Just an initial method for exploring patterns and exception handling."""
@@ -161,7 +165,7 @@ class Window:
         with contextlib.closing(self.widget):
             async with qtrio.enter_emissions_channel(
                 signals=[self.ui.raise_button.clicked, self.widget.closed]
-            ) as emissions:
+            ) as self._emissions:
                 # TODO: uh...  private?
                 async with qtrio._core.wait_signal_context(
                     signal=self.widget.shown,
@@ -181,7 +185,7 @@ class Window:
                     debug_text = os.environ["SSST_DEBUG_BYTES"]
                     debug_path.write_bytes(os.fsencode(debug_text))
 
-                async for emission in emissions.channel:
+                async for emission in self._emissions.channel:
                     async with self.emissions_exception_presenter.manage():
                         if emission.is_from(signal=self.ui.raise_button.clicked):
                             await self.raise_clicked()
