@@ -164,13 +164,13 @@ async def test_write_point_with_scale_factor(
 
 async def test_read_modbus_exception_raises(
     sunspec_client: ssst.sunspec.client.Client,
-):
+) -> None:
     with pytest.raises(ssst.ModbusError):
         await sunspec_client.read_registers(address=0, count=1)
 
 
 async def test_write_modbus_exception_raises(
     sunspec_client: ssst.sunspec.client.Client,
-):
+) -> None:
     with pytest.raises(ssst.ModbusError):
         await sunspec_client.write_registers(address=0, values=b":]")
