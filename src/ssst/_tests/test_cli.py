@@ -94,7 +94,7 @@ def launch_command_fixture(
 
         return [os.fspath(frozen_executable)]
 
-    raise ssst.InternalError("Unhandled parametrization")
+    raise ssst.InternalError("Unhandled parametrization")  # pragma: no cover
 
 
 async def test_gui_launches(
