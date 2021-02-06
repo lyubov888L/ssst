@@ -71,14 +71,30 @@ def test_one_matching_entry_point_provided() -> None:
     assert len(our_consolidated_console_scripts) == 1, our_consolidated_console_scripts
 
 
-@pytest.fixture(name="launch_command", params=[False, True], ids=["script", "-m"])
-def launch_command_fixture(request: _pytest.fixtures.SubRequest) -> typing.List[str]:
-    if request.param:
+@pytest.fixture(name="launch_command", params=["script", "-m", "frozen"])
+def launch_command_fixture(
+    request: _pytest.fixtures.SubRequest,
+    frozen_executable: typing.Optional[pathlib.Path],
+) -> typing.List[str]:
+    if request.param == "script":
+        if frozen_executable is not None:
+            pytest.skip("Frozen executable specified, skipping non-frozen tests")
+
+        ssst_path = ssst._utilities.script_path(name="ssst")
+
+        return [os.fspath(ssst_path)]
+    elif request.param == "-m":
+        if frozen_executable is not None:
+            pytest.skip("Frozen executable specified, skipping non-frozen tests")
+
         return [sys.executable, "-m", "ssst"]
+    elif request.param == "frozen":
+        if frozen_executable is None:
+            pytest.skip("Frozen executable not specified, pass via --frozen-executable")
 
-    ssst_path = ssst._utilities.script_path(name="ssst")
+        return [os.fspath(frozen_executable)]
 
-    return [os.fspath(ssst_path)]
+    raise ssst.InternalError("Unhandled parametrization")
 
 
 async def test_gui_launches(
@@ -113,17 +129,3 @@ async def test_gui_launches(
                 break
 
     assert debug_path.read_bytes() == debug_bytes
-
-
-async def test_frozen_gui_launches(
-    nursery: trio.Nursery,
-    tmp_path: pathlib.Path,
-    frozen_executable_path: pathlib.Path,
-):
-    launch_command = [frozen_executable_path]
-
-    await test_gui_launches(
-        nursery=nursery,
-        tmp_path=tmp_path,
-        launch_command=launch_command,
-    )

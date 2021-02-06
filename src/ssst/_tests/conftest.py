@@ -20,15 +20,14 @@ pytest_plugins = "pytester"
 # TODO: consider pytest-click
 
 
-@pytest.fixture(name="frozen_executable_path")
-def frozen_executable_path_fixture(
+@pytest.fixture(name="frozen_executable", scope="session")
+def frozen_executable_fixture(
     request: _pytest.fixtures.SubRequest,
-) -> pathlib.Path:
+) -> typing.Optional[pathlib.Path]:
     maybe_frozen_executable_string = request.config.getoption("--frozen-executable")
 
     if maybe_frozen_executable_string is None:
-        # note that this raises an exception handled by pytest
-        pytest.skip("Frozen executable not specified, pass via --frozen-executable")
+        return None
 
     return pathlib.Path(maybe_frozen_executable_string)
 
@@ -38,7 +37,7 @@ def _maybe_skip_not_frozen_fixture(request: _pytest.fixtures.SubRequest):
     frozen_executable_specified = (
         request.config.getoption("--frozen-executable") is not None
     )
-    uses_frozen_executable = "frozen_executable_path" in request.fixturenames
+    uses_frozen_executable = "frozen_executable" in request.fixturenames
 
     if frozen_executable_specified and not uses_frozen_executable:
         pytest.skip("Frozen executable specified, skipping non-frozen tests")
