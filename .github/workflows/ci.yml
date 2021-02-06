@@ -168,7 +168,7 @@ jobs:
           tox -v -e ${{ matrix.task.tox }}
 
   freeze:
-    name: ${{ matrix.task.name }}
+    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ matrix.os.container[matrix.python.docker] }}
     strategy:
