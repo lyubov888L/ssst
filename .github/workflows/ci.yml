@@ -156,6 +156,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Set up ${{ matrix.python.name }}
+        if: job.container == ''
+        uses: actions/setup-python@v2
+        with:
+          python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
+          architecture: '${{ matrix.arch.action }}'
       - name: Install
         run: |
           pip install --upgrade pip setuptools wheel
