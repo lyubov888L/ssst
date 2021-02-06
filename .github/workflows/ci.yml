@@ -178,6 +178,7 @@ jobs:
         task:
           - name: PyInstaller
             tox: pyinstaller
+            coverage: true
         os:
           - name: Linux
             runs-on: ubuntu-latest
