@@ -113,3 +113,17 @@ async def test_gui_launches(
                 break
 
     assert debug_path.read_bytes() == debug_bytes
+
+
+async def test_frozen_gui_launches(
+    nursery: trio.Nursery,
+    tmp_path: pathlib.Path,
+    frozen_executable_path: pathlib.Path,
+):
+    launch_command = [frozen_executable_path]
+
+    await test_gui_launches(
+        nursery=nursery,
+        tmp_path=tmp_path,
+        launch_command=launch_command,
+    )
