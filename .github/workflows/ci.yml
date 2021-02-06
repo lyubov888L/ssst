@@ -167,6 +167,53 @@ jobs:
         run: |
           tox -v -e ${{ matrix.task.tox }}
 
+  freeze:
+    name: ${{ matrix.task.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: PyInstaller
+            tox: pyinstaller
+        os:
+          - name: Linux
+            runs-on: ubuntu-latest
+            python_platform: linux
+            container:
+              3.9: docker://python:3.9-buster
+          - name: Windows
+            runs-on: windows-latest
+            python_platform: win32
+            matrix: windows
+          - name: macOS
+            runs-on: macos-latest
+            python_platform: darwin
+            matrix: macos
+        python:
+          - name: CPython 3.9
+            tox: py39
+            action: 3.9
+            docker: 3.9
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install --upgrade tox
+      - uses: twisted/python-info-action@v1.0.1
+      - name: Freeze
+        run: |
+          tox -v -e ${{ matrix.task.tox }}
+      - name: Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.task.name }} - ${{ matrix.os.name }}
+          path: dist/*
+
   all:
     name: All
     runs-on: ubuntu-latest
