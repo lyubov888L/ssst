@@ -168,6 +168,7 @@ jobs:
           tox -v -e ${{ matrix.task.tox }}
 
   freeze:
+    # Should match JOB_NAME below
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ matrix.os.container[matrix.python.docker] }}
@@ -191,11 +192,19 @@ jobs:
             runs-on: macos-latest
             python_platform: darwin
             matrix: macos
+        qt_library:
+#          - name: PyQt5
+#            tox: pyqt5
+          - name: PySide2
+            tox: pyside2
         python:
           - name: CPython 3.9
             tox: py39
             action: 3.9
             docker: 3.9
+    env:
+      # Should match name above
+      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -220,7 +229,20 @@ jobs:
       - uses: twisted/python-info-action@v1.0.1
       - name: Freeze
         run: |
-          tox -v -e ${{ matrix.task.tox }}
+          tox -v -e ${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
+      - name: Coverage Processing
+        if: matrix.task.coverage
+        run: |
+          mkdir coverage_reports
+          cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
+          cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
+          tox -v -e codecov
+      - name: Publish Coverage
+        if: matrix.task.coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage_reports/*
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
