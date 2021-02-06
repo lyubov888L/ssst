@@ -194,8 +194,8 @@ jobs:
             python_platform: darwin
             matrix: macos
         qt_library:
-#          - name: PyQt5
-#            tox: pyqt5
+          - name: PyQt5
+            tox: pyqt5
           - name: PySide2
             tox: pyside2
         python:

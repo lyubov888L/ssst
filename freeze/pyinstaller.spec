@@ -42,10 +42,26 @@ def Entrypoint(dist, group, name, **kwargs):
 
 name = "ssst"
 
+hidden_imports = []
+
+try:
+    import PySide2
+except ImportError:
+    pass
+else:
+    hidden_imports.append("pyside2")
+
+try:
+    import PyQt5
+except ImportError:
+    pass
+else:
+    hidden_imports.append("pyqt5")
+
 a = Entrypoint(
     dist=name,
     group="console_scripts",
-    hiddenimports=["pyside2"],
+    hiddenimports=hidden_imports,
     name=name,
     pathex=["."],
 )
