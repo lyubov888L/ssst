@@ -116,7 +116,7 @@ jobs:
           tox -vv --notest -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
       - name: Test
         run: |
-          tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
+          tox -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
       - name: Coverage Processing
         if: matrix.task.coverage
         run: |
@@ -169,7 +169,7 @@ jobs:
           tox -vv --notest -e ${{ matrix.task.tox }}
       - name: Test
         run: |
-          tox -vv -e ${{ matrix.task.tox }}
+          tox -e ${{ matrix.task.tox }}
 
   all:
     name: All
