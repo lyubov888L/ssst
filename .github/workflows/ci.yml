@@ -254,6 +254,7 @@ jobs:
           name: coverage
           path: coverage_reports/*
       - name: Archive
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.JOB_NAME }}
