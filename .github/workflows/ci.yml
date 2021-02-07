@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        task:
+          - name: Nothing
+            tox: nothing
+            coverage: false
+            matrix: nothing
         os:
           - name: Linux
             runs-on: ubuntu-latest
@@ -70,6 +75,9 @@ jobs:
           - name: x64
             action: x64
             matrix: x64
+        exclude:
+          - task:
+              matrix: nothing
     steps:
       - name: This
         shell: python
@@ -89,7 +97,7 @@ jobs:
             tox: test
             coverage: true
         os:
-          - needs.matrix.strategy.matrix.os[0]
+#          - needs.matrix.strategy.matrix.os[0]
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
