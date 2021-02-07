@@ -183,6 +183,7 @@ jobs:
           - name: Linux
             runs-on: ubuntu-latest
             python_platform: linux
+            matrix: linux
             container:
               3.9: docker://python:3.9-buster
           - name: Windows
