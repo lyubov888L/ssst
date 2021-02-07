@@ -228,9 +228,18 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install --upgrade tox
       - uses: twisted/python-info-action@v1.0.1
+      - name: Setup tox freeze environment
+        run: |
+          tox -vv --no-test -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
       - name: Freeze
         run: |
-          tox -v -e ${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
+          tox -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
+      - name: Setup tox test environment
+        run: |
+          tox -vv --no-test -e test-${{ matrix.task.tox }}
+      - name: Test
+        run: |
+          tox -e test-${{ matrix.task.tox }}
       - name: Coverage Processing
         if: matrix.task.coverage
         run: |
