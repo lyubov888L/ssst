@@ -70,7 +70,11 @@ jobs:
           - name: x64
             action: x64
             matrix: x64
-    steps: []
+    steps:
+      - name: This
+        shell: python
+        run: |
+          import this
   test:
     # Should match JOB_NAME below
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
