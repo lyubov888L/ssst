@@ -97,7 +97,7 @@ jobs:
             tox: test
             coverage: true
         os:
-#          - needs.matrix.strategy.matrix.os[0]
+          - needs.matrix.strategy.matrix.os[0]
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
