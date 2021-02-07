@@ -230,13 +230,13 @@ jobs:
       - uses: twisted/python-info-action@v1.0.1
       - name: Setup tox freeze environment
         run: |
-          tox -vv --no-test -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
+          tox -vv --notest -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
       - name: Freeze
         run: |
           tox -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
       - name: Setup tox test environment
         run: |
-          tox -vv --no-test -e test-${{ matrix.task.tox }}
+          tox -vv --notest -e test-${{ matrix.task.tox }}
       - name: Test
         run: |
           tox -e test-${{ matrix.task.tox }}
