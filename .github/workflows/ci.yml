@@ -247,7 +247,7 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.task.name }} - ${{ matrix.os.name }}
+          name: ${{ env.JOB_NAME }}
           path: dist/*
 
   all:
