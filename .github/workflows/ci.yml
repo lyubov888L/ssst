@@ -236,10 +236,10 @@ jobs:
           tox -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
       - name: Setup tox test environment
         run: |
-          tox -vv --notest -e test-${{ matrix.task.tox }}
+          tox -vv --notest -e test-frozen
       - name: Test
         run: |
-          tox -e test-${{ matrix.task.tox }}
+          tox -e test-frozen
       - name: Coverage Processing
         if: matrix.task.coverage
         run: |
