@@ -203,6 +203,22 @@ jobs:
             tox: py39
             action: 3.9
             docker: 3.9
+        arch:
+#          - name: x86
+#            action: x86
+#            matrix: x86
+          - name: x64
+            action: x64
+            matrix: x64
+        exclude:
+          - os:
+              matrix: linux
+            arch:
+              matrix: x86
+          - os:
+              matrix: macos
+            arch:
+              matrix: x86
     env:
       # Should match name above
       JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
