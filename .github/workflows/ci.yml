@@ -99,6 +99,15 @@ jobs:
         - pyside2: null
           name: PySide2
           tox: pyside2
+        exclude:
+        - os:
+            matrix: linux
+          arch:
+            matrix: x86
+        - os:
+            matrix: macos
+          arch:
+            matrix: x86
         task:
         - name: Test
           tox: test
@@ -116,15 +125,6 @@ jobs:
         - name: x64
           action: x64
           matrix: x64
-        exclude:
-        - os:
-            matrix: linux
-          arch:
-            matrix: x86
-        - os:
-            matrix: macos
-          arch:
-            matrix: x86
     env:
       JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
         }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
@@ -162,7 +162,7 @@ jobs:
         }}
 
         '
-    - name: Coverage Processing
+    - name: Process Coverage
       if: matrix.task.coverage
       run: 'mkdir coverage_reports
 
@@ -226,10 +226,6 @@ jobs:
     - name: Install
       run: 'pip install --upgrade pip setuptools wheel
 
-        pip install tox
-
-        pip install --upgrade pip setuptools wheel
-
         pip install --upgrade tox
 
         '
@@ -275,6 +271,15 @@ jobs:
         - pyside2: null
           name: PySide2
           tox: pyside2
+        exclude:
+        - os:
+            matrix: linux
+          arch:
+            matrix: x86
+        - os:
+            matrix: macos
+          arch:
+            matrix: x86
         task:
         - name: PyInstaller
           tox: pyinstaller
@@ -288,15 +293,6 @@ jobs:
         - name: x64
           action: x64
           matrix: x64
-        exclude:
-        - os:
-            matrix: linux
-          arch:
-            matrix: x86
-        - os:
-            matrix: macos
-          arch:
-            matrix: x86
     env:
       JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
         }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
@@ -346,7 +342,7 @@ jobs:
       run: 'tox -e test-frozen-${{ matrix.qt_library.tox }}
 
         '
-    - name: Coverage Processing
+    - name: Process Coverage
       if: matrix.task.coverage
       run: 'mkdir coverage_reports
 
