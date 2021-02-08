@@ -112,10 +112,10 @@ jobs:
           import os
 
           print(os.environ["THE_MATRIX"])
-#          print(os.environ["A_LINUX"])
+          print(os.environ["A_LINUX"])
         env:
           THE_MATRIX: ${{ needs.matrix.outputs.matrix }}
-#          A_LINUX: ${{ fromJson(needs.matrix.outputs.matrix).os.linux }}
+          A_LINUX: ${{ toJson(fromJson(needs.matrix.outputs.matrix).os.linux) }}
   test:
     # Should match JOB_NAME below
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
