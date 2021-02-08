@@ -93,7 +93,7 @@ jobs:
         run: |
           import this
     outputs:
-        matrix: ${{ matrix.root[0] }}
+        matrix: ${{ toJson(matrix.root[0]) }}
   test:
     # Should match JOB_NAME below
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
