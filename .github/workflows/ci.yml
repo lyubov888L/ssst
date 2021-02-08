@@ -122,7 +122,6 @@ jobs:
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ matrix.os.container[matrix.python.docker] }}
     needs: matrix
-    if: false
     strategy:
       fail-fast: false
       matrix:
