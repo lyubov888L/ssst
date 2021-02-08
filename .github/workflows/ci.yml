@@ -90,13 +90,19 @@ jobs:
     steps:
       - name: Print the matrix
         shell: python
+        id: the_one
         run: |
+          import json
           import os
-          print(os.environ["THE_MATRIX"])
+
+          json_matrix = json.loads(os.environ["THE_MATRIX"])
+          string_matrix = json.dumps(json_matrix)
+          print(string_matrix)
+          print(f"::set-output name=it::{string_matrix}")
         env:
           THE_MATRIX: ${{ toJson(matrix.root) }}
     outputs:
-        matrix: ${{ toJson(matrix.root) }}
+        matrix: ${{ steps.the_one.outputs.it }}
   test:
     # Should match JOB_NAME below
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
