@@ -202,7 +202,6 @@ jobs:
         }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
       }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-    needs: matrix
     runs-on: ${{ matrix.os.runs-on }}
     steps:
     - uses: actions/checkout@v2
