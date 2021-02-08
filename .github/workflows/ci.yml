@@ -91,7 +91,10 @@ jobs:
       - name: Print the matrix
         shell: python
         run: |
-          print('${{ toJson(matrix.root) }}')
+          import os
+          print(os.environ["THE_MATRIX"])
+        env:
+          THE_MATRIX: ${{ toJson(matrix.root) }}
     outputs:
         matrix: ${{ toJson(matrix.root) }}
   test:
