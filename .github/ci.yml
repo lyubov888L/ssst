@@ -1,0 +1,290 @@
+name: CI
+
+anchors:
+  all_task:
+    task:
+      - &example
+        name: Example
+        tox: example
+        coverage: false
+        matrix: example
+  all_os: &all_os
+    os:
+      - &linux
+        name: Linux
+        runs-on: ubuntu-latest
+        python_platform: linux
+        matrix: linux
+        container:
+          2.7: docker://python:2.7-buster
+          3.5: docker://python:3.5-buster
+          3.6: docker://python:3.6-buster
+          3.7: docker://python:3.7-buster
+          3.8: docker://python:3.8-buster
+          3.9: docker://python:3.9-buster
+          pypy2: docker://pypy:2-jessie
+          pypy3: docker://pypy:3-stretch
+      - &windows
+        name: Windows
+        runs-on: windows-latest
+        python_platform: win32
+        matrix: windows
+      - &macos
+        name: macOS
+        runs-on: macos-latest
+        python_platform: darwin
+        matrix: macos
+  all_qt_library: &all_qt_library
+    qt_library:
+      pyqt5: &pyqt5
+        name: PyQt5
+        tox: pyqt5
+      pyside2: &pyside2
+        name: PySide2
+        tox: pyside2
+  all_python: &all_python
+    python:
+      cpython3.6: &cpython3_6
+        name: CPython 3.6
+        tox: py36
+        action: 3.6
+        docker: 3.6
+      cpython3.7: &cpython3_7
+        name: CPython 3.7
+        tox: py37
+        action: 3.7
+        docker: 3.7
+      cpython3.8: &cpython3_8
+        name: CPython 3.8
+        tox: py38
+        action: 3.8
+        docker: 3.8
+      cpython3.9: &cpython3_9
+        name: CPython 3.9
+        tox: py39
+        action: 3.9
+        docker: 3.9
+  all_arch: &all_arch
+    arch:
+      x86: &x86
+        name: x86
+        action: x86
+        matrix: x86
+      x64: &x64
+        name: x64
+        action: x64
+        matrix: x64
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - "*"
+  schedule:
+    # Daily at 05:14
+    - cron: '14 5 * * *'
+
+jobs:
+  test:
+    # Should match JOB_NAME below
+    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    needs: matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: Test
+            tox: test
+            coverage: true
+        <<: *all_os
+        <<: *all_qt_library
+        python:
+          - *cpython3_6
+          - *cpython3_9
+        arch:
+          - *x64
+        exclude:
+          - os:
+              matrix: linux
+            arch:
+              matrix: x86
+          - os:
+              matrix: macos
+            arch:
+              matrix: x86
+    env:
+      # Should match name above
+      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up ${{ matrix.python.name }}
+        if: job.container == ''
+        uses: actions/setup-python@v2
+        with:
+          python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
+          architecture: '${{ matrix.arch.action }}'
+      - name: Install Linux Qt5 dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes libgl1 libgl1-mesa-dev xvfb x11-utils libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
+      - uses: altendky/QTBUG-88688-libxcb-util@v2
+        if: matrix.os.matrix == 'linux'
+      - name: Install
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install --upgrade tox
+      - uses: twisted/python-info-action@v1.0.1
+      - name: Test
+        run: |
+          tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
+      - name: Coverage Processing
+        if: matrix.task.coverage
+        run: |
+          mkdir coverage_reports
+          cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
+          cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
+          tox -v -e codecov
+      - name: Publish Coverage
+        if: matrix.task.coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage_reports/*
+  check:
+    name: ${{ matrix.task.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: Black
+            tox: black
+            coverage: false
+          - name: Mypy
+            tox: mypy
+            coverage: false
+        os:
+          - *linux
+        python:
+          - *cpython3_8
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install tox
+          pip install --upgrade pip setuptools wheel
+          pip install --upgrade tox
+      - uses: twisted/python-info-action@v1.0.1
+      - name: Test
+        run: |
+          tox -v -e ${{ matrix.task.tox }}
+
+  freeze:
+    # Should match JOB_NAME below
+    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: PyInstaller
+            tox: pyinstaller
+            coverage: true
+        <<: *all_os
+        <<: *all_qt_library
+        python:
+          - *cpython3_9
+        arch:
+          - *x64
+        exclude:
+          - os:
+              matrix: linux
+            arch:
+              matrix: x86
+          - os:
+              matrix: macos
+            arch:
+              matrix: x86
+    env:
+      # Should match name above
+      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up ${{ matrix.python.name }}
+        if: job.container == ''
+        uses: actions/setup-python@v2
+        with:
+          python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
+          architecture: '${{ matrix.arch.action }}'
+      - name: Install Linux Qt5 dependencies
+        if: matrix.os.python_platform == 'linux'
+        run: |
+          apt-get update --yes
+          apt-get install --yes libgl1 libgl1-mesa-dev xvfb x11-utils libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
+      - uses: altendky/QTBUG-88688-libxcb-util@v2
+        if: matrix.os.matrix == 'linux'
+      - name: Install
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install --upgrade tox
+      - uses: twisted/python-info-action@v1.0.1
+      - name: Setup tox freeze environment
+        run: |
+          tox -vv --notest -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
+      - name: Freeze
+        run: |
+          tox -e freeze-${{ matrix.task.tox }}-${{ matrix.qt_library.tox }}
+      - name: Setup tox test environment
+        run: |
+          tox -vv --notest -e test-frozen-${{ matrix.qt_library.tox }}
+      - name: Test
+        run: |
+          tox -e test-frozen-${{ matrix.qt_library.tox }}
+      - name: Coverage Processing
+        if: matrix.task.coverage
+        run: |
+          mkdir coverage_reports
+          cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
+          cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
+          tox -v -e codecov
+      - name: Publish Coverage
+        if: matrix.task.coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage_reports/*
+      - name: Archive
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.JOB_NAME }}
+          path: dist/*
+
+  all:
+    name: All
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - check
+      - freeze
+    steps:
+      - name: This
+        shell: python
+        run: |
+          import this
