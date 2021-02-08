@@ -36,10 +36,10 @@ anchors:
         matrix: macos
   all_qt_library: &all_qt_library
     qt_library:
-      pyqt5: &pyqt5
+      - pyqt5: &pyqt5
         name: PyQt5
         tox: pyqt5
-      pyside2: &pyside2
+      - pyside2: &pyside2
         name: PySide2
         tox: pyside2
   all_python: &all_python

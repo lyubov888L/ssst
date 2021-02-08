@@ -185,12 +185,12 @@ jobs:
           name: CPython 3.9
           tox: py39
         qt_library:
-          pyqt5:
-            name: PyQt5
-            tox: pyqt5
-          pyside2:
-            name: PySide2
-            tox: pyside2
+        - name: PyQt5
+          pyqt5: null
+          tox: pyqt5
+        - name: PySide2
+          pyside2: null
+          tox: pyside2
         task:
         - coverage: true
           name: PyInstaller
@@ -303,12 +303,12 @@ jobs:
           name: CPython 3.9
           tox: py39
         qt_library:
-          pyqt5:
-            name: PyQt5
-            tox: pyqt5
-          pyside2:
-            name: PySide2
-            tox: pyside2
+        - name: PyQt5
+          pyqt5: null
+          tox: pyqt5
+        - name: PySide2
+          pyside2: null
+          tox: pyside2
         task:
         - coverage: true
           name: Test

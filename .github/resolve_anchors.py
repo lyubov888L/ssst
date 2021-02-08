@@ -3,6 +3,7 @@ import pathlib
 import yaml
 
 
+# https://github.com/yaml/pyyaml/issues/103
 class NoAliasDumper(yaml.SafeDumper):
     def ignore_aliases(self, data):
         return True
