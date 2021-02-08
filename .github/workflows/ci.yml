@@ -39,8 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-        - &id001
-          container:
+        - container:
             2.7: docker://python:2.7-buster
             3.5: docker://python:3.5-buster
             3.6: docker://python:3.6-buster
@@ -146,8 +145,7 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-        - &id002
-          action: x64
+        - action: x64
           matrix: x64
           name: x64
         exclude:
@@ -159,8 +157,20 @@ jobs:
             matrix: x86
           os:
             matrix: macos
-        os: &id003
-        - *id001
+        os:
+        - container:
+            2.7: docker://python:2.7-buster
+            3.5: docker://python:3.5-buster
+            3.6: docker://python:3.6-buster
+            3.7: docker://python:3.7-buster
+            3.8: docker://python:3.8-buster
+            3.9: docker://python:3.9-buster
+            pypy2: docker://pypy:2-jessie
+            pypy3: docker://pypy:3-stretch
+          matrix: linux
+          name: Linux
+          python_platform: linux
+          runs-on: ubuntu-latest
         - matrix: windows
           name: Windows
           python_platform: win32
@@ -170,12 +180,11 @@ jobs:
           python_platform: darwin
           runs-on: macos-latest
         python:
-        - &id004
-          action: 3.9
+        - action: 3.9
           docker: 3.9
           name: CPython 3.9
           tox: py39
-        qt_library: &id005
+        qt_library:
           pyqt5:
             name: PyQt5
             tox: pyqt5
@@ -250,7 +259,9 @@ jobs:
       fail-fast: false
       matrix:
         arch:
-        - *id002
+        - action: x64
+          matrix: x64
+          name: x64
         exclude:
         - arch:
             matrix: x86
@@ -260,14 +271,44 @@ jobs:
             matrix: x86
           os:
             matrix: macos
-        os: *id003
+        os:
+        - container:
+            2.7: docker://python:2.7-buster
+            3.5: docker://python:3.5-buster
+            3.6: docker://python:3.6-buster
+            3.7: docker://python:3.7-buster
+            3.8: docker://python:3.8-buster
+            3.9: docker://python:3.9-buster
+            pypy2: docker://pypy:2-jessie
+            pypy3: docker://pypy:3-stretch
+          matrix: linux
+          name: Linux
+          python_platform: linux
+          runs-on: ubuntu-latest
+        - matrix: windows
+          name: Windows
+          python_platform: win32
+          runs-on: windows-latest
+        - matrix: macos
+          name: macOS
+          python_platform: darwin
+          runs-on: macos-latest
         python:
         - action: 3.6
           docker: 3.6
           name: CPython 3.6
           tox: py36
-        - *id004
-        qt_library: *id005
+        - action: 3.9
+          docker: 3.9
+          name: CPython 3.9
+          tox: py39
+        qt_library:
+          pyqt5:
+            name: PyQt5
+            tox: pyqt5
+          pyside2:
+            name: PySide2
+            tox: pyside2
         task:
         - coverage: true
           name: Test
