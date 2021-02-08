@@ -1,21 +1,166 @@
+name: CI
+'on':
+  push:
+    branches:
+    - main
+    tags:
+    - v*
+  pull_request:
+    branches:
+    - '*'
+  schedule:
+  - cron: 14 5 * * *
 jobs:
-  all:
-    name: All
-    needs:
-    - test
-    - check
-    - freeze
-    runs-on: ubuntu-latest
+  test:
+    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
+      }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - name: Linux
+          runs-on: ubuntu-latest
+          python_platform: linux
+          matrix: linux
+          container:
+            2.7: docker://python:2.7-buster
+            3.5: docker://python:3.5-buster
+            3.6: docker://python:3.6-buster
+            3.7: docker://python:3.7-buster
+            3.8: docker://python:3.8-buster
+            3.9: docker://python:3.9-buster
+            pypy2: docker://pypy:2-jessie
+            pypy3: docker://pypy:3-stretch
+        - name: Windows
+          runs-on: windows-latest
+          python_platform: win32
+          matrix: windows
+        - name: macOS
+          runs-on: macos-latest
+          python_platform: darwin
+          matrix: macos
+        qt_library:
+        - pyqt5: null
+          name: PyQt5
+          tox: pyqt5
+        - pyside2: null
+          name: PySide2
+          tox: pyside2
+        task:
+        - name: Test
+          tox: test
+          coverage: true
+        python:
+        - name: CPython 3.6
+          tox: py36
+          action: 3.6
+          docker: 3.6
+        - name: CPython 3.9
+          tox: py39
+          action: 3.9
+          docker: 3.9
+        arch:
+        - name: x64
+          action: x64
+          matrix: x64
+        exclude:
+        - os:
+            matrix: linux
+          arch:
+            matrix: x86
+        - os:
+            matrix: macos
+          arch:
+            matrix: x86
+    env:
+      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
+        }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     steps:
-    - name: This
-      run: 'import this
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up ${{ matrix.python.name }}
+      if: job.container == ''
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action
+          }}.X
+        architecture: ${{ matrix.arch.action }}
+    - name: Install Linux Qt5 dependencies
+      if: matrix.os.python_platform == 'linux'
+      run: 'apt-get update --yes
+
+        apt-get install --yes libgl1 libgl1-mesa-dev xvfb x11-utils libdbus-1-3 libxkbcommon-x11-0
+        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0
+        libxcb-xinerama0 libxcb-xfixes0
 
         '
-      shell: python
+    - uses: altendky/QTBUG-88688-libxcb-util@v2
+      if: matrix.os.matrix == 'linux'
+    - name: Install
+      run: 'pip install --upgrade pip setuptools wheel
+
+        pip install --upgrade tox
+
+        '
+    - uses: twisted/python-info-action@v1.0.1
+    - name: Test
+      run: 'tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox
+        }}
+
+        '
+    - name: Coverage Processing
+      if: matrix.task.coverage
+      run: 'mkdir coverage_reports
+
+        cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
+
+        cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
+
+        tox -v -e codecov
+
+        '
+    - name: Publish Coverage
+      if: matrix.task.coverage
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage_reports/*
   check:
-    container: ${{ matrix.os.container[matrix.python.docker] }}
     name: ${{ matrix.task.name }}
     runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+        - name: Black
+          tox: black
+          coverage: false
+        - name: Mypy
+          tox: mypy
+          coverage: false
+        os:
+        - name: Linux
+          runs-on: ubuntu-latest
+          python_platform: linux
+          matrix: linux
+          container:
+            2.7: docker://python:2.7-buster
+            3.5: docker://python:3.5-buster
+            3.6: docker://python:3.6-buster
+            3.7: docker://python:3.7-buster
+            3.8: docker://python:3.8-buster
+            3.9: docker://python:3.9-buster
+            pypy2: docker://pypy:2-jessie
+            pypy3: docker://pypy:3-stretch
+        python:
+        - name: CPython 3.8
+          tox: py38
+          action: 3.8
+          docker: 3.8
     steps:
     - uses: actions/checkout@v2
       with:
@@ -35,11 +180,20 @@ jobs:
       run: 'tox -v -e ${{ matrix.task.tox }}
 
         '
+  freeze:
+    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
+      }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
     strategy:
       fail-fast: false
       matrix:
         os:
-        - container:
+        - name: Linux
+          runs-on: ubuntu-latest
+          python_platform: linux
+          matrix: linux
+          container:
             2.7: docker://python:2.7-buster
             3.5: docker://python:3.5-buster
             3.6: docker://python:3.6-buster
@@ -48,43 +202,59 @@ jobs:
             3.9: docker://python:3.9-buster
             pypy2: docker://pypy:2-jessie
             pypy3: docker://pypy:3-stretch
-          matrix: linux
-          name: Linux
-          python_platform: linux
-          runs-on: ubuntu-latest
-        python:
-        - action: 3.8
-          docker: 3.8
-          name: CPython 3.8
-          tox: py38
+        - name: Windows
+          runs-on: windows-latest
+          python_platform: win32
+          matrix: windows
+        - name: macOS
+          runs-on: macos-latest
+          python_platform: darwin
+          matrix: macos
+        qt_library:
+        - pyqt5: null
+          name: PyQt5
+          tox: pyqt5
+        - pyside2: null
+          name: PySide2
+          tox: pyside2
         task:
-        - coverage: false
-          name: Black
-          tox: black
-        - coverage: false
-          name: Mypy
-          tox: mypy
-  freeze:
-    container: ${{ matrix.os.container[matrix.python.docker] }}
+        - name: PyInstaller
+          tox: pyinstaller
+          coverage: true
+        python:
+        - name: CPython 3.9
+          tox: py39
+          action: 3.9
+          docker: 3.9
+        arch:
+        - name: x64
+          action: x64
+          matrix: x64
+        exclude:
+        - os:
+            matrix: linux
+          arch:
+            matrix: x86
+        - os:
+            matrix: macos
+          arch:
+            matrix: x86
     env:
       JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
         }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
-      }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-    runs-on: ${{ matrix.os.runs-on }}
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - if: job.container == ''
-      name: Set up ${{ matrix.python.name }}
+    - name: Set up ${{ matrix.python.name }}
+      if: job.container == ''
       uses: actions/setup-python@v2
       with:
-        architecture: ${{ matrix.arch.action }}
         python-version: ${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action
           }}.X
-    - if: matrix.os.python_platform == 'linux'
-      name: Install Linux Qt5 dependencies
+        architecture: ${{ matrix.arch.action }}
+    - name: Install Linux Qt5 dependencies
+      if: matrix.os.python_platform == 'linux'
       run: 'apt-get update --yes
 
         apt-get install --yes libgl1 libgl1-mesa-dev xvfb x11-utils libdbus-1-3 libxkbcommon-x11-0
@@ -92,8 +262,8 @@ jobs:
         libxcb-xinerama0 libxcb-xfixes0
 
         '
-    - if: matrix.os.matrix == 'linux'
-      uses: altendky/QTBUG-88688-libxcb-util@v2
+    - uses: altendky/QTBUG-88688-libxcb-util@v2
+      if: matrix.os.matrix == 'linux'
     - name: Install
       run: 'pip install --upgrade pip setuptools wheel
 
@@ -118,8 +288,8 @@ jobs:
       run: 'tox -e test-frozen-${{ matrix.qt_library.tox }}
 
         '
-    - if: matrix.task.coverage
-      name: Coverage Processing
+    - name: Coverage Processing
+      if: matrix.task.coverage
       run: 'mkdir coverage_reports
 
         cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
@@ -129,198 +299,28 @@ jobs:
         tox -v -e codecov
 
         '
-    - if: matrix.task.coverage
-      name: Publish Coverage
+    - name: Publish Coverage
+      if: matrix.task.coverage
       uses: actions/upload-artifact@v2
       with:
         name: coverage
         path: coverage_reports/*
-    - if: always()
-      name: Archive
+    - name: Archive
+      if: always()
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.JOB_NAME }}
         path: dist/*
-    strategy:
-      fail-fast: false
-      matrix:
-        arch:
-        - action: x64
-          matrix: x64
-          name: x64
-        exclude:
-        - arch:
-            matrix: x86
-          os:
-            matrix: linux
-        - arch:
-            matrix: x86
-          os:
-            matrix: macos
-        os:
-        - container:
-            2.7: docker://python:2.7-buster
-            3.5: docker://python:3.5-buster
-            3.6: docker://python:3.6-buster
-            3.7: docker://python:3.7-buster
-            3.8: docker://python:3.8-buster
-            3.9: docker://python:3.9-buster
-            pypy2: docker://pypy:2-jessie
-            pypy3: docker://pypy:3-stretch
-          matrix: linux
-          name: Linux
-          python_platform: linux
-          runs-on: ubuntu-latest
-        - matrix: windows
-          name: Windows
-          python_platform: win32
-          runs-on: windows-latest
-        - matrix: macos
-          name: macOS
-          python_platform: darwin
-          runs-on: macos-latest
-        python:
-        - action: 3.9
-          docker: 3.9
-          name: CPython 3.9
-          tox: py39
-        qt_library:
-        - name: PyQt5
-          pyqt5: null
-          tox: pyqt5
-        - name: PySide2
-          pyside2: null
-          tox: pyside2
-        task:
-        - coverage: true
-          name: PyInstaller
-          tox: pyinstaller
-  test:
-    container: ${{ matrix.os.container[matrix.python.docker] }}
-    env:
-      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
-        }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name
-      }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-    runs-on: ${{ matrix.os.runs-on }}
+  all:
+    name: All
+    runs-on: ubuntu-latest
+    needs:
+    - test
+    - check
+    - freeze
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - if: job.container == ''
-      name: Set up ${{ matrix.python.name }}
-      uses: actions/setup-python@v2
-      with:
-        architecture: ${{ matrix.arch.action }}
-        python-version: ${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action
-          }}.X
-    - if: matrix.os.python_platform == 'linux'
-      name: Install Linux Qt5 dependencies
-      run: 'apt-get update --yes
-
-        apt-get install --yes libgl1 libgl1-mesa-dev xvfb x11-utils libdbus-1-3 libxkbcommon-x11-0
-        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0
-        libxcb-xinerama0 libxcb-xfixes0
+    - name: This
+      shell: python
+      run: 'import this
 
         '
-    - if: matrix.os.matrix == 'linux'
-      uses: altendky/QTBUG-88688-libxcb-util@v2
-    - name: Install
-      run: 'pip install --upgrade pip setuptools wheel
-
-        pip install --upgrade tox
-
-        '
-    - uses: twisted/python-info-action@v1.0.1
-    - name: Test
-      run: 'tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox
-        }}
-
-        '
-    - if: matrix.task.coverage
-      name: Coverage Processing
-      run: 'mkdir coverage_reports
-
-        cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
-
-        cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
-
-        tox -v -e codecov
-
-        '
-    - if: matrix.task.coverage
-      name: Publish Coverage
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage_reports/*
-    strategy:
-      fail-fast: false
-      matrix:
-        arch:
-        - action: x64
-          matrix: x64
-          name: x64
-        exclude:
-        - arch:
-            matrix: x86
-          os:
-            matrix: linux
-        - arch:
-            matrix: x86
-          os:
-            matrix: macos
-        os:
-        - container:
-            2.7: docker://python:2.7-buster
-            3.5: docker://python:3.5-buster
-            3.6: docker://python:3.6-buster
-            3.7: docker://python:3.7-buster
-            3.8: docker://python:3.8-buster
-            3.9: docker://python:3.9-buster
-            pypy2: docker://pypy:2-jessie
-            pypy3: docker://pypy:3-stretch
-          matrix: linux
-          name: Linux
-          python_platform: linux
-          runs-on: ubuntu-latest
-        - matrix: windows
-          name: Windows
-          python_platform: win32
-          runs-on: windows-latest
-        - matrix: macos
-          name: macOS
-          python_platform: darwin
-          runs-on: macos-latest
-        python:
-        - action: 3.6
-          docker: 3.6
-          name: CPython 3.6
-          tox: py36
-        - action: 3.9
-          docker: 3.9
-          name: CPython 3.9
-          tox: py39
-        qt_library:
-        - name: PyQt5
-          pyqt5: null
-          tox: pyqt5
-        - name: PySide2
-          pyside2: null
-          tox: pyside2
-        task:
-        - coverage: true
-          name: Test
-          tox: test
-name: CI
-'on':
-  pull_request:
-    branches:
-    - '*'
-  push:
-    branches:
-    - main
-    tags:
-    - v*
-  schedule:
-  - cron: 14 5 * * *

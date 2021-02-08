@@ -16,7 +16,7 @@ def main():
 
     loaded = yaml.load(input_file.read_text(encoding="UTF-8"), Loader=yaml.SafeLoader)
     loaded.pop("anchors")
-    output_file.write_text(yaml.dump(loaded, Dumper=NoAliasDumper), encoding="UTF-8")
+    output_file.write_text(yaml.dump(loaded, sort_keys=False, Dumper=NoAliasDumper), encoding="UTF-8")
 
 
 main()
