@@ -92,6 +92,7 @@ jobs:
         shell: python
         run: |
           import this
+          print('${{ toJson(matrix.root[0]) }}')
     outputs:
         matrix: ${{ toJson(matrix.root[0]) }}
   test:
