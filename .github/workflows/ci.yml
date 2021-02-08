@@ -88,13 +88,12 @@ jobs:
                 action: x64
                 matrix: x64
     steps:
-      - name: This
+      - name: Print the matrix
         shell: python
         run: |
-          import this
-          print('${{ toJson(matrix.root[0]) }}')
+          print('${{ toJson(matrix.root) }}')
     outputs:
-        matrix: ${{ toJson(matrix.root[0]) }}
+        matrix: ${{ toJson(matrix.root) }}
   test:
     # Should match JOB_NAME below
     name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
