@@ -90,8 +90,7 @@ anchors:
 
 jobs:
   test:
-    # Should match JOB_NAME below
-    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    name: &test_name ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ matrix.os.container[matrix.python.docker] }}
     strategy:
@@ -118,8 +117,7 @@ jobs:
             arch:
               matrix: x86
     env:
-      # Should match name above
-      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+      JOB_NAME: *test_name
     steps:
       - uses: actions/checkout@v2
         with:
@@ -192,8 +190,7 @@ jobs:
           tox -v -e ${{ matrix.task.tox }}
 
   freeze:
-    # Should match JOB_NAME below
-    name: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+    name: &freeze_name ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     runs-on: ${{ matrix.os.runs-on }}
     container: ${{ matrix.os.container[matrix.python.docker] }}
     strategy:
@@ -219,8 +216,7 @@ jobs:
             arch:
               matrix: x86
     env:
-      # Should match name above
-      JOB_NAME: ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
+      JOB_NAME: *freeze_name
     steps:
       - uses: actions/checkout@v2
         with:
