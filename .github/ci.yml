@@ -75,7 +75,7 @@ anchors:
         action: x64
         matrix: x64
 
-on:
+"on":
   push:
     branches:
       - main

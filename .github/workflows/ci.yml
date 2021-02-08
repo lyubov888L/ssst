@@ -1,15 +1,3 @@
-name: CI
-true:
-  pull_request:
-    branches:
-    - '*'
-  push:
-    branches:
-    - main
-    tags:
-    - v*
-  schedule:
-  - cron: 14 5 * * *
 jobs:
   all:
     name: All
@@ -284,3 +272,15 @@ jobs:
         - coverage: true
           name: Test
           tox: test
+name: CI
+'on':
+  pull_request:
+    branches:
+    - '*'
+  push:
+    branches:
+    - main
+    tags:
+    - v*
+  schedule:
+  - cron: 14 5 * * *
