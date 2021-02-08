@@ -20,22 +20,3 @@ def main():
 
 
 main()
-
-# s = """
-# anchors:
-#     wifi_parm: &wifi_params
-#         ssid: 1
-#         key: 2
-# test1:
-#   name: connectivity
-#   <<: *wifi_params
-# test2:
-#   name: connectivity_5ghz
-#   <<: *wifi_params
-# """
-#
-# print(s)
-# data = yaml.load(s, Loader=yaml.SafeLoader)
-# print(data)
-# data.pop("anchors")
-# print(yaml.dump(data, Dumper=yaml.SafeDumper))
