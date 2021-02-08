@@ -117,7 +117,7 @@ jobs:
             tox: test
             coverage: true
         os:
-          - ${{ fromJson(needs.matrix.outputs.matrix.os.linux) }}
+          - ${{ fromJson(needs.matrix.outputs.matrix).os.linux }}
           - name: Windows
             runs-on: windows-latest
             python_platform: win32
