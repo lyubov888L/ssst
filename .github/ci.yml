@@ -1,6 +1,20 @@
 name: CI
 
 anchors:
+  runs_on_and_container: &runs_on_and_container
+    runs-on: ${{ matrix.os.runs-on }}
+    container: ${{ matrix.os.container[matrix.python.docker] }}
+  checkout: &checkout
+    uses: actions/checkout@v2
+    with:
+      fetch-depth: 0
+  setup_python: &setup_python
+    name: Set up ${{ matrix.python.name }}
+    if: job.container == ''
+    uses: actions/setup-python@v2
+    with:
+      python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
+      architecture: '${{ matrix.arch.action }}'
   all_task:
     task:
       - &example
@@ -89,10 +103,32 @@ anchors:
     - cron: '14 5 * * *'
 
 jobs:
+  check_workflow:
+    name: Check workflow
+    <<: *runs_on_and_container
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - *linux
+        python:
+          - *cpython3_8
+    steps:
+      - *checkout
+      - *setup_python
+      - name: Install
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install pyyaml~=5.4
+      - name: Generate
+        run: |
+          python .github/resolve_anchors.py
+      - name: Check
+        run: |
+          git diff --exit-code
   test:
     name: &test_name ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-    runs-on: ${{ matrix.os.runs-on }}
-    container: ${{ matrix.os.container[matrix.python.docker] }}
+    <<: *runs_on_and_container
     strategy:
       fail-fast: false
       matrix:
@@ -119,15 +155,8 @@ jobs:
     env:
       JOB_NAME: *test_name
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Set up ${{ matrix.python.name }}
-        if: job.container == ''
-        uses: actions/setup-python@v2
-        with:
-          python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
-          architecture: '${{ matrix.arch.action }}'
+      - *checkout
+      - *setup_python
       - name: Install Linux Qt5 dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
@@ -158,8 +187,7 @@ jobs:
           path: coverage_reports/*
   check:
     name: ${{ matrix.task.name }}
-    runs-on: ${{ matrix.os.runs-on }}
-    container: ${{ matrix.os.container[matrix.python.docker] }}
+    <<: *runs_on_and_container
     strategy:
       fail-fast: false
       matrix:
@@ -175,9 +203,8 @@ jobs:
         python:
           - *cpython3_8
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - *checkout
+      - *setup_python
       - name: Install
         run: |
           pip install --upgrade pip setuptools wheel
@@ -191,8 +218,7 @@ jobs:
 
   freeze:
     name: &freeze_name ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
-    runs-on: ${{ matrix.os.runs-on }}
-    container: ${{ matrix.os.container[matrix.python.docker] }}
+    <<: *runs_on_and_container
     strategy:
       fail-fast: false
       matrix:
@@ -218,15 +244,8 @@ jobs:
     env:
       JOB_NAME: *freeze_name
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Set up ${{ matrix.python.name }}
-        if: job.container == ''
-        uses: actions/setup-python@v2
-        with:
-          python-version: '${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action }}.X'
-          architecture: '${{ matrix.arch.action }}'
+      - *checkout
+      - *setup_python
       - name: Install Linux Qt5 dependencies
         if: matrix.os.python_platform == 'linux'
         run: |
@@ -275,6 +294,7 @@ jobs:
     name: All
     runs-on: ubuntu-latest
     needs:
+      - check_workflow
       - test
       - check
       - freeze
