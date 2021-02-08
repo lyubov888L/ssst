@@ -104,7 +104,7 @@ anchors:
 
 jobs:
   check_workflow:
-    name: Check workflow - lkjlkjlsad
+    name: Check workflow
     <<: *runs_on_and_container
     strategy:
       fail-fast: false
