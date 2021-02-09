@@ -24,6 +24,10 @@ pytest_plugins = "pytester"
 def frozen_executable_fixture(
     request: _pytest.fixtures.SubRequest,
 ) -> typing.Optional[pathlib.Path]:
+    """If a test or fixture depends on this one but only conditionally makes use of
+    it then it should consider the rules set out below in the _maybe_skip_not_frozen
+    fixture.
+    """
     maybe_frozen_executable_string = request.config.getoption("--frozen-executable")
 
     if maybe_frozen_executable_string is None:
@@ -34,6 +38,12 @@ def frozen_executable_fixture(
 
 @pytest.fixture(name="_maybe_skip_not_frozen", autouse=True, scope="function")
 def _maybe_skip_not_frozen_fixture(request: _pytest.fixtures.SubRequest):
+    """If a frozen executable has been specified, this will skip all tests that
+    don't at least maybe use the frozen executable fixture.  Any fixtures or
+    tests that depend on the frozen executable fixture but only use it
+    conditionally are responsible for skipping their own non-using cases.
+    """
+
     frozen_executable_specified = (
         request.config.getoption("--frozen-executable") is not None
     )
