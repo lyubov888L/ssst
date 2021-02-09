@@ -24,7 +24,7 @@ def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
     group.addoption(
         "--frozen-executable",
         help=(
-            "The path to a frozen executable, such as from PyInstaller.  If specified
+            "The path to a frozen executable, such as from PyInstaller.  If specified"
             " only the appropriate tests meant for frozen executables will be run."
         ),
     )
