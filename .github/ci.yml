@@ -24,6 +24,11 @@ anchors:
   setup_qt_linux_libxcb: &setup_qt_linux_xcb
     uses: altendky/QTBUG-88688-libxcb-util@v2
     if: matrix.os.matrix == 'linux'
+  install_tox: &install_tox
+    name: Install tox
+    run: |
+      pip install --upgrade pip setuptools wheel
+      pip install --upgrade tox
   process_coverage: &process_coverage
     name: Process Coverage
     if: matrix.task.coverage
@@ -74,10 +79,10 @@ anchors:
         matrix: macos
   all_qt_library: &all_qt_library
     qt_library:
-      - pyqt5: &pyqt5
+      - &pyqt5
         name: PyQt5
         tox: pyqt5
-      - pyside2: &pyside2
+      - &pyside2
         name: PySide2
         tox: pyside2
   all_python: &all_python
@@ -150,7 +155,7 @@ jobs:
     steps:
       - *checkout
       - *setup_python
-      - name: Install tox
+      - name: Install pyyaml
         run: |
           pip install --upgrade pip setuptools wheel
           pip install pyyaml~=5.4
@@ -185,10 +190,7 @@ jobs:
       - *setup_python
       - *setup_qt_linux_apt
       - *setup_qt_linux_xcb
-      - name: Install tox
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install --upgrade tox
+      - *install_tox
       - uses: twisted/python-info-action@v1.0.1
       - name: Setup tox environment
         run: |
@@ -217,10 +219,7 @@ jobs:
     steps:
       - *checkout
       - *setup_python
-      - name: Install tox
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install --upgrade tox
+      - *install_tox
       - uses: twisted/python-info-action@v1.0.1
       - name: Setup tox environment
         run: |
@@ -252,10 +251,7 @@ jobs:
       - *setup_python
       - *setup_qt_linux_apt
       - *setup_qt_linux_xcb
-      - name: Install tox
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install --upgrade tox
+      - *install_tox
       - uses: twisted/python-info-action@v1.0.1
       - name: Setup tox freeze environment
         run: |

@@ -48,7 +48,7 @@ jobs:
         python-version: ${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action
           }}.X
         architecture: ${{ matrix.arch.action }}
-    - name: Install tox
+    - name: Install pyyaml
       run: 'pip install --upgrade pip setuptools wheel
 
         pip install pyyaml~=5.4
@@ -93,11 +93,9 @@ jobs:
           python_platform: darwin
           matrix: macos
         qt_library:
-        - pyqt5: null
-          name: PyQt5
+        - name: PyQt5
           tox: pyqt5
-        - pyside2: null
-          name: PySide2
+        - name: PySide2
           tox: pyside2
         exclude:
         - os:
@@ -263,11 +261,9 @@ jobs:
           python_platform: darwin
           matrix: macos
         qt_library:
-        - pyqt5: null
-          name: PyQt5
+        - name: PyQt5
           tox: pyqt5
-        - pyside2: null
-          name: PySide2
+        - name: PySide2
           tox: pyside2
         exclude:
         - os:
