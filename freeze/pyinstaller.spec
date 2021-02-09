@@ -42,21 +42,7 @@ def Entrypoint(dist, group, name, **kwargs):
 
 name = "ssst"
 
-hidden_imports = []
-
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    hidden_imports.append("pyside2")
-
-try:
-    import PyQt5
-except ImportError:
-    pass
-else:
-    hidden_imports.append("pyqt5")
+hidden_imports = [os.environ["SSST_QT_API"]]
 
 a = Entrypoint(
     dist=name,
