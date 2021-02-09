@@ -150,7 +150,7 @@ jobs:
     steps:
       - *checkout
       - *setup_python
-      - name: Install
+      - name: Install tox
         run: |
           pip install --upgrade pip setuptools wheel
           pip install pyyaml~=5.4
@@ -185,15 +185,17 @@ jobs:
       - *setup_python
       - *setup_qt_linux_apt
       - *setup_qt_linux_xcb
-      - name: Install
+      - name: Install tox
         run: |
           pip install --upgrade pip setuptools wheel
           pip install --upgrade tox
       - uses: twisted/python-info-action@v1.0.1
+      - name: Setup tox environment
+        run: |
+          tox -vv --notest -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
       - name: Test
         run: |
-          tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
-      - *process_coverage
+          tox -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}      - *process_coverage
       - *publish_coverage
   check:
     name: ${{ matrix.task.name }}
@@ -215,15 +217,17 @@ jobs:
     steps:
       - *checkout
       - *setup_python
-      - name: Install
+      - name: Install tox
         run: |
           pip install --upgrade pip setuptools wheel
           pip install --upgrade tox
       - uses: twisted/python-info-action@v1.0.1
+      - name: Setup tox environment
+        run: |
+          tox -vv --notest -e ${{ matrix.task.tox }}
       - name: Test
         run: |
-          tox -v -e ${{ matrix.task.tox }}
-
+          tox -e ${{ matrix.task.tox }}
   freeze:
     name: &freeze_name ${{ matrix.task.name }} - ${{ matrix.os.name }} ${{ matrix.qt_library.name }} ${{ matrix.python.name }} ${{ matrix.arch.name }}
     <<: *runs_on_and_container
@@ -248,7 +252,7 @@ jobs:
       - *setup_python
       - *setup_qt_linux_apt
       - *setup_qt_linux_xcb
-      - name: Install
+      - name: Install tox
         run: |
           pip install --upgrade pip setuptools wheel
           pip install --upgrade tox

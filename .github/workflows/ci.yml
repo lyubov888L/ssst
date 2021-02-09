@@ -48,7 +48,7 @@ jobs:
         python-version: ${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action
           }}.X
         architecture: ${{ matrix.arch.action }}
-    - name: Install
+    - name: Install tox
       run: 'pip install --upgrade pip setuptools wheel
 
         pip install pyyaml~=5.4
@@ -150,27 +150,21 @@ jobs:
         '
     - uses: altendky/QTBUG-88688-libxcb-util@v2
       if: matrix.os.matrix == 'linux'
-    - name: Install
+    - name: Install tox
       run: 'pip install --upgrade pip setuptools wheel
 
         pip install --upgrade tox
 
         '
     - uses: twisted/python-info-action@v1.0.1
-    - name: Test
-      run: 'tox -vv -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox
-        }}
+    - name: Setup tox environment
+      run: 'tox -vv --notest -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{
+        matrix.qt_library.tox }}
 
         '
-    - name: Process Coverage
-      if: matrix.task.coverage
-      run: 'mkdir coverage_reports
-
-        cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
-
-        cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
-
-        tox -v -e codecov
+    - name: Test
+      run: 'tox -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox
+        }}      - *process_coverage
 
         '
     - name: Publish Coverage
@@ -223,15 +217,19 @@ jobs:
         python-version: ${{ matrix.python.action }}.0-alpha - ${{ matrix.python.action
           }}.X
         architecture: ${{ matrix.arch.action }}
-    - name: Install
+    - name: Install tox
       run: 'pip install --upgrade pip setuptools wheel
 
         pip install --upgrade tox
 
         '
     - uses: twisted/python-info-action@v1.0.1
+    - name: Setup tox environment
+      run: 'tox -vv --notest -e ${{ matrix.task.tox }}
+
+        '
     - name: Test
-      run: 'tox -v -e ${{ matrix.task.tox }}
+      run: 'tox -e ${{ matrix.task.tox }}
 
         '
   freeze:
@@ -318,7 +316,7 @@ jobs:
         '
     - uses: altendky/QTBUG-88688-libxcb-util@v2
       if: matrix.os.matrix == 'linux'
-    - name: Install
+    - name: Install tox
       run: 'pip install --upgrade pip setuptools wheel
 
         pip install --upgrade tox
