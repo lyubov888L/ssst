@@ -197,7 +197,8 @@ jobs:
           tox -vv --notest -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
       - name: Test
         run: |
-          tox -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}      - *process_coverage
+          tox -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox }}
+      - *process_coverage
       - *publish_coverage
   check:
     name: ${{ matrix.task.name }}

@@ -162,7 +162,18 @@ jobs:
         '
     - name: Test
       run: 'tox -e ${{ matrix.task.tox }}-${{ matrix.python.tox }}-${{ matrix.qt_library.tox
-        }}      - *process_coverage
+        }}
+
+        '
+    - name: Process Coverage
+      if: matrix.task.coverage
+      run: 'mkdir coverage_reports
+
+        cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
+
+        cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
+
+        tox -v -e codecov
 
         '
     - name: Publish Coverage
