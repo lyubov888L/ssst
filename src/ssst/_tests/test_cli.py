@@ -76,6 +76,18 @@ def launch_command_fixture(
     request: _pytest.fixtures.SubRequest,
     frozen_executable: typing.Optional[pathlib.Path],
 ) -> typing.List[str]:
+    """This launch command fixture will return a list of strings that can be used as
+    a subprocess command to launch the base SSST program.  There are three possible
+    modes.
+    
+    - myvenv/bin/ssst
+    - myvenv/bin/python -m ssst
+    - dist/myfrozenssst
+    
+    If --frozen-executable has been specified then the first two will be skipped.
+    Otherwise, the frozen executable mode will be skipped.
+    """
+    
     if request.param == "script":
         if frozen_executable is not None:
             pytest.skip("Frozen executable specified, skipping non-frozen tests")
