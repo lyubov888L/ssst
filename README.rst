@@ -109,12 +109,12 @@ A directly runnable console script and a Python module runnable using ``python -
    :target: `repository`_
    :alt: Repository
 
-.. _tests: https://github.com/altendky/ssst/actions?query=branch%3Amaster
-.. |tests badge| image:: https://img.shields.io/github/workflow/status/altendky/ssst/CI/master?color=seagreen&logo=GitHub-Actions&logoColor=whitesmoke
+.. _tests: https://github.com/altendky/ssst/actions?query=branch%3Amain
+.. |tests badge| image:: https://img.shields.io/github/workflow/status/altendky/ssst/CI/main?color=seagreen&logo=GitHub-Actions&logoColor=whitesmoke
    :target: `tests`_
    :alt: Tests
 
 .. _coverage: https://codecov.io/gh/altendky/ssst
-.. |coverage badge| image:: https://img.shields.io/codecov/c/github/altendky/ssst/master?color=seagreen&logo=Codecov&logoColor=whitesmoke
+.. |coverage badge| image:: https://img.shields.io/codecov/c/github/altendky/ssst/main?color=seagreen&logo=Codecov&logoColor=whitesmoke
    :target: `coverage`_
    :alt: Test coverage
