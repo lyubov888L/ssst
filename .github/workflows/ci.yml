@@ -182,7 +182,7 @@ jobs:
         task:
           - name: PyInstaller
             tox: pyinstaller
-            coverage: true
+            coverage: false
         os:
           - name: Linux
             runs-on: ubuntu-latest
@@ -261,19 +261,6 @@ jobs:
       - name: Test
         run: |
           tox -e test-frozen-${{ matrix.qt_library.tox }}
-      - name: Coverage Processing
-        if: matrix.task.coverage
-        run: |
-          mkdir coverage_reports
-          cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
-          cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
-          tox -v -e codecov
-      - name: Publish Coverage
-        if: matrix.task.coverage
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage
-          path: coverage_reports/*
       - name: Archive
         if: always()
         uses: actions/upload-artifact@v2
