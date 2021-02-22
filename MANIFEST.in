@@ -1,2 +1,4 @@
 include LICENSE
 graft src
+include versioneer.py
+include src/ssst/_version.py

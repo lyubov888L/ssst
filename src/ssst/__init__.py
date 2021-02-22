@@ -1,7 +1,5 @@
 """Top-level package for SSST."""
 
-from ssst._version import __version__
-
 from ssst.exceptions import (
     SsstError,
     BaseAddressNotFoundError,
@@ -12,3 +10,7 @@ from ssst.exceptions import (
     ReuseError,
     UnexpectedEmissionError,
 )
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
