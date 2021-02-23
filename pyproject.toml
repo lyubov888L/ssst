@@ -10,6 +10,7 @@ include = '''
 exclude = '''
 ^/(
     src/ssst/_version.py
+    | versioneer.py
 )$
 '''
 
