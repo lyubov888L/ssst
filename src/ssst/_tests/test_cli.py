@@ -65,7 +65,7 @@ def test_one_matching_entry_point_provided() -> None:
     #  'just Python'.  No idea why right now, just accepting it.
     our_consolidated_console_scripts = []
     for script in our_console_scripts:
-        if script not in our_consolidated_console_scripts:
+        if script not in our_consolidated_console_scripts:  # pragma: no branch
             our_consolidated_console_scripts.append(script)
 
     assert len(our_consolidated_console_scripts) == 1, our_consolidated_console_scripts
