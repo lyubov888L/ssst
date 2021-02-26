@@ -123,6 +123,9 @@ jobs:
           mkdir coverage_reports
           cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
           cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
+      - name: Upload Coverage
+        if: matrix.task.coverage && ! github.event.schedule
+        run: |
           tox -v -e codecov
       - name: Publish Coverage
         if: matrix.task.coverage
@@ -267,6 +270,9 @@ jobs:
           mkdir coverage_reports
           cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
           cp coverage.xml "coverage_reports/coverage.${{ env.JOB_NAME }}.xml"
+      - name: Upload Coverage
+        if: matrix.task.coverage && ! github.event.schedule
+        run: |
           tox -v -e codecov
       - name: Publish Coverage
         if: matrix.task.coverage
