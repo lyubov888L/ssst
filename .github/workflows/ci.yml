@@ -120,7 +120,7 @@ jobs:
       - name: Coverage Processing
         if: matrix.task.coverage
         env:
-          CODECOV_TOKEN: secrets.CODECOV_TOKEN
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           mkdir coverage_reports
           cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
@@ -266,7 +266,7 @@ jobs:
       - name: Coverage Processing
         if: matrix.task.coverage
         env:
-          CODECOV_TOKEN: secrets.CODECOV_TOKEN
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           mkdir coverage_reports
           cp .coverage "coverage_reports/coverage.${{ env.JOB_NAME }}"
